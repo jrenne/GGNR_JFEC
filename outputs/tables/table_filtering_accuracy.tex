@@ -1,0 +1,31 @@
+\begin{table}[!htbp]
+\centering
+\begin{threeparttable}
+\caption{Filtering accuracy in simulations with known latent states}
+\label{oa:tab_filtering_accuracy}
+\footnotesize
+\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lrrrrrrrrr@{}}
+\toprule
+& \multicolumn{3}{c}{First-order EKF} & \multicolumn{3}{c}{Fixed two-step IEKF} & \multicolumn{3}{c}{UKF} \\
+\cmidrule(lr){2-4} \cmidrule(lr){5-7} \cmidrule(lr){8-10}
+State & Bias & RMSE & 95\% cov. & Bias & RMSE & 95\% cov. & Bias & RMSE & 95\% cov. \\
+\midrule
+\multicolumn{10}{l}{\textit{Panel A: All sample months}} \\ 
+$r_t^*$ & 0.009 & 0.175 & 94.5 & 0.004 & 0.172 & 94.7 & 0.001 & 0.172 & 95.1 \\
+$\pi_t^*$ & -0.000 & 0.193 & 94.9 & -0.000 & 0.192 & 95.1 & -0.002 & 0.192 & 95.1 \\
+$m_t$ & 0.050 & 0.243 & 91.6 & 0.032 & 0.211 & 94.1 & 0.001 & 0.215 & 95.3 \\
+Shadow rate $s_t$ & 0.059 & 0.257 & 91.6 & 0.036 & 0.217 & 94.2 & 0.001 & 0.222 & 95.3 \\
+\addlinespace
+\multicolumn{10}{l}{\textit{Panel B: Months with a negative latent shadow rate}} \\
+$r_t^*$ & 0.039 & 0.195 & 92.3 & 0.015 & 0.186 & 94.2 & 0.002 & 0.188 & 94.9 \\
+$\pi_t^*$ & 0.023 & 0.188 & 93.5 & 0.014 & 0.184 & 94.4 & 0.007 & 0.183 & 94.6 \\
+$m_t$ & 0.301 & 0.557 & 69.2 & 0.141 & 0.438 & 90.5 & 0.056 & 0.454 & 93.7 \\
+Shadow rate $s_t$ & 0.363 & 0.632 & 64.3 & 0.169 & 0.488 & 88.4 & 0.064 & 0.497 & 93.6 \\
+\bottomrule
+\end{tabular*}
+\begin{tablenotes}[flushleft]
+\footnotesize
+\item Notes: Results average across 200 simulated samples of 695 months. Each simulation uses the estimated six-state transition, the measurement-error variances, and the actual missing-observation calendar. Simulated observations and all three filters use the same analytical bond-pricing equations, so the exercise isolates filtering from pricing-approximation error. Bias and RMSE are in annualized percentage points. Coverage is the empirical coverage of pointwise Gaussian 95\% filtering intervals. A negative latent shadow rate occurs in 12.8\% of simulated months. The fixed two-step IEKF repeats the measurement update once in every month. The UKF uses 13 sigma points. The largest Monte Carlo standard error among the reported coverage estimates is 1.3 percentage points.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}

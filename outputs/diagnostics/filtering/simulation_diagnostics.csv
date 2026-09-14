@@ -1,0 +1,2 @@
+"replication_count","sample_months","state_dimension","ukf_sigma_points","ukf_alpha","iekf_steps","iekf_trigger_probability","seed","cores","elapsed_seconds","observed_filter_max_state_difference","observed_filter_loglik_difference","observed_ukf_minus_ekf_loglik","observed_ukf_minus_ekf_loglik_per_month","mean_binding_fraction"
+200,695,6,13,1,2,0,1986,1,187.924,2.99760216648792e-14,1.45519152283669e-11,87.4681969071244,0.125853520729675,0.128496402877698

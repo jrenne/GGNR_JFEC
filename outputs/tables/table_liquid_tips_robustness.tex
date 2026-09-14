@@ -1,0 +1,25 @@
+\begin{table}[H]
+\centering
+\caption{Robustness to illiquid real-yield observations}
+\label{tab:liquid_tips_robustness}
+\begin{threeparttable}
+\small
+\begin{tabular}{lrrrr}
+\toprule
+ & \multicolumn{2}{c}{Ordinary post-2004 months} & \multicolumn{2}{c}{Omitted GFC/COVID months} \\
+\cmidrule(lr){2-3} \cmidrule(lr){4-5}
+ & Mean diff. & Mean abs. diff. & Mean diff. & Mean abs. diff. \\
+\midrule
+$r_t^*$ & 0.161 & 0.161 & 0.252 & 0.503 \\
+$\pi_t^*$ & -0.071 & 0.071 & -0.077 & 0.446 \\
+Nominal term premium & -0.065 & 0.065 & -0.100 & 0.152 \\
+Real term premium & -0.130 & 0.130 & -0.142 & 0.145 \\
+Inflation risk premium & 0.080 & 0.080 & 0.056 & 0.079 \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}[flushleft]
+\footnotesize
+\item Notes: Entries are annualized percentage points and compare the liquid-TIPS re-estimate with the baseline. The sensitivity estimate uses real-yield observations only in ordinary-liquidity months from 2004 onward; all other observables remain available throughout. The GFC and acute-COVID windows contain 36 months. `Mean diff.' is sensitivity minus baseline.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
