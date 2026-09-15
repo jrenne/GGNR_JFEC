@@ -13,8 +13,8 @@ output_directory <- Sys.getenv(
 )
 simulation_count <- as.integer(Sys.getenv("GGNR_MT_SIMULATIONS", "5000"))
 forecast_horizon <- as.integer(Sys.getenv("GGNR_MT_FORECAST_HORIZON", "12"))
-maturities <- c(3L, 60L, 120L)
-maturity_labels <- c("3-month maturity", "5-year maturity", "10-year maturity")
+maturities <- c(3L, 12L, 120L)
+maturity_labels <- c("3-month maturity", "1-year maturity", "10-year maturity")
 dir.create(output_directory, recursive = TRUE, showWarnings = FALSE)
 
 diagnostics <- readRDS(file.path(diagnostic_directory, "diagnostics.rds"))

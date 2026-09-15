@@ -49,6 +49,20 @@ with the model-implied risk premia. `external/shadow_rate_comparisons.rds`
 contains the Wu--Xia and Krippner series displayed in the shadow-rate
 comparison. These comparison data are not used to estimate the model.
 
+`external/natural_rate_comparisons.rds` contains the one-sided (filtered)
+LW and HLW U.S. natural-rate estimates shown in Figure 1. The New York Fed
+releases are August 27, 2026 (LW) and August 28, 2026 (HLW), both ending in
+2026Q2. LW's input-data cutoff is August 26, 2026. These current-vintage
+estimates use revised data and full-sample parameter estimates; they are not
+historical real-time vintages. Quarterly values are assigned to the quarter's
+final month, without monthly interpolation. The figure connects the points.
+The exact source workbooks are in `external/natural_rate_sources/`.
+To rebuild the comparison file, source
+`code/data/prepare_natural_rate_comparisons.R` from the package project in
+RStudio. The script selects column C (one-sided r-star) of LW's `data` sheet
+and column K (U.S. r-star) of the all-one-sided `HLW Estimates` sheet.
+Source: https://www.newyorkfed.org/research/policy/rstar.
+
 The data and comparison series remain subject to the terms of their original
 providers. The MIT license in the repository applies to the authors' code, not
 to third-party data.

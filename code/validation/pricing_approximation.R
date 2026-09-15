@@ -238,7 +238,7 @@ for (security in c("Nominal", "Real")) {
 }
 table_lines <- c(table_lines, "\\bottomrule", "\\end{tabular*}",
   "\\begin{tablenotes}\\footnotesize",
-  "\\item Notes: Entries are absolute differences between approximate and Monte Carlo yields, in basis points, across the 27 observed-state configurations. The nominal approximation is exactly the Wu--Xia formula. Monte Carlo uses two million antithetic paths and an exact unconstrained-bond control variate. The maximum Monte Carlo standard error is 0.027 basis point.",
+  "\\item Notes: Entries summarize the absolute yield discrepancies between the analytical formula and the Monte Carlo benchmark, in basis points, across the 27 observed-state configurations. The nominal approximation is exactly the Wu--Xia formula. Benchmark simulation precision is documented in the accompanying text.",
   "\\end{tablenotes}", "\\end{threeparttable}", "\\end{table}")
 dir.create("outputs/tables", recursive = TRUE, showWarnings = FALSE)
 writeLines(table_lines, "outputs/tables/table_pricing_accuracy.tex")

@@ -73,7 +73,7 @@ archived results were last reproduced with R 4.5.1, Rcpp 1.1.0, RcppEigen
 
 The driver will recreate:
 
-- Tables 1--2 and Figures 1--5 in the paper;
+- Tables 1--2 and Figures 1--6 in the paper;
 - the pricing-approximation table and figure and the filtering-accuracy table;
 - all observable-fit figures;
 - the 2020-omission figure;
@@ -83,6 +83,10 @@ The driver will recreate:
 - the alternative shadow-rate comparison; and
 - the additional shadow-rate and yield-response figures in the Online
   Appendix.
+
+The 2020-omission figure (`rstar_omit2020.pdf`) is stored with its robustness
+diagnostics in `outputs/diagnostics/omit_2020/`; the other final figures are
+in `outputs/figures/`.
 
 ## Directory structure
 

@@ -115,6 +115,7 @@ for (entry in list(c(1, 24), c(2, 60), c(4, 120))) {
 }
 dev.off()
 
+# One-sided LW and HLW estimates; frozen vintages are documented in data/README.md.
 benchmark <- readRDS("data/external/natural_rate_comparisons.rds")
 benchmark_lw <- benchmark$LW[match(dates, benchmark$date)]
 benchmark_hlw <- benchmark$HLW[match(dates, benchmark$date)]
