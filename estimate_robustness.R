@@ -5,8 +5,8 @@
 
 estimate_robustness <- function(output_file, omit_2020, liquid_tips_only) {
   rounds <- data.frame(
-    optimizer = c("bobyqa", "nlminb"),
-    evaluations = c(1000L, 500L)
+    optimizer = c("bobyqa", "nlminb", "bobyqa"),
+    evaluations = c(1000L, 500L, 1000L)
   )
   for (round in seq_len(nrow(rounds))) {
     Sys.setenv(
@@ -18,7 +18,13 @@ estimate_robustness <- function(output_file, omit_2020, liquid_tips_only) {
       GGNR_OMIT_END = if (omit_2020) "2020-12-31" else "",
       GGNR_LIQUID_TIPS_ONLY = if (liquid_tips_only) "true" else "false"
     )
-    source("code/estimation/estimate_baseline.R")
+    source("code/estimation/estimate_baseline.R", local = new.env())
+  }
+  # Allow one additional refinement if the final round exhausted its budget.
+  if (readRDS(output_file)$optimizer$convergence %in% c(5L, 98L)) {
+    Sys.setenv(GGNR_START_FILE = output_file, GGNR_EVAL_BUDGET = "1500",
+               GGNR_OPTIMIZER = "bobyqa")
+    source("code/estimation/estimate_baseline.R", local = new.env())
   }
 }
 

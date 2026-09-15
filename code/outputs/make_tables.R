@@ -13,9 +13,13 @@ diagnostic_directory <- Sys.getenv(
 )
 inf <- read.csv(file.path(inference_directory, "parameter_inference.csv"))
 fit <- read.csv(file.path(diagnostic_directory, "fit_summary.csv"))
-if (!all(c("opg_se", "hac_sandwich_se") %in% names(inf))) {
-  stop("Both OPG and OPG-based HAC standard errors are required.")
-}
+hac_covariance <- as.matrix(read.csv(
+  file.path(inference_directory, "hac_sandwich_covariance_natural.csv"),
+  row.names = 1, check.names = FALSE
+))
+inf$hac_sandwich_se <- sqrt(pmax(
+  0, diag(hac_covariance[inf$parameter, inf$parameter, drop = FALSE])
+))
 
 labels <- c(
   rho_r_star="$\\rho_{r^*}$", sigma_r_star_pp="$\\sigma_{r^*}$ (pp)",
@@ -54,7 +58,7 @@ fmt <- function(x) {
 }
 lines <- c(
   "\\begin{table}[!htbp]", "\\centering",
-  "\\caption{Parameter estimates and OPG-based standard errors}",
+  "\\caption{Parameter estimates and score-based standard errors}",
   "\\label{tab:parameters}", "\\begin{threeparttable}", "\\small",
   "\\renewcommand{\\arraystretch}{0.92}",
   "\\begin{tabular*}{\\textwidth}{@{\\extracolsep{\\fill}}lrrr}",
@@ -70,10 +74,8 @@ for (g in names(groups)) {
 }
 uncertainty_note <- paste0(
   "The OPG column uses the inverse outer product of monthly likelihood scores. ",
-  "The OPG--HAC column uses the inverse OPG as bread and a Newey--West ",
-  "long-run covariance matrix of the scores with 12 lags as meat. Scores are ",
-  "local one-sided numerical derivatives because the lower-bound likelihood ",
-  "is piecewise smooth."
+  "The OPG--HAC column uses the score-based HAC sandwich documented in ",
+  "the Online Appendix section ``State-space and measurement system.''"
 )
 lines <- c(
   lines, "\\bottomrule", "\\end{tabular*}",
@@ -81,7 +83,7 @@ lines <- c(
   paste0(
     "\\item Notes: Innovation and measurement-error standard deviations are expressed in annualized percentage points where indicated. ",
     uncertainty_note,
-    " Four unconditional moments determine the means of $r^*$ and $\\pi^*$ and the innovation variances of $m$ and $u$ analytically at each likelihood evaluation. The GFC liquidity adjustment is a common additive intercept in real yields during 2008--2009. Long-horizon CPI and Treasury-bill survey errors are fixed at 0.10 percentage point; real-yield errors are fixed at 0.10 percentage point in normal periods and 0.30 percentage point before 2004, during 2008--2009, and from March 2020 through February 2021."
+    " The four unconditional moment restrictions determine $\\mu_r$, $\\mu_\\pi$, $\\sigma_m$, and $\\sigma_u$ analytically. The GFC liquidity adjustment is a common additive intercept in real yields during 2008--2009. Long-horizon CPI and Treasury-bill survey errors are fixed at 0.10 percentage point; real-yield errors are fixed at 0.10 percentage point in normal periods and 0.30 percentage point before 2004, during 2008--2009, and from March 2020 through February 2021."
   ),
   "\\end{tablenotes}", "\\end{threeparttable}", "\\end{table}"
 )
@@ -90,7 +92,7 @@ writeLines(lines, file.path(out, "table_parameters.tex"), useBytes=TRUE)
 keep <- fit$observable %in% c("headline_cpi_12m", "ptr", "cpi_forecast_1y", "cpi_forecast_10y", "tbill_forecast_1y", "tbill_forecast_10y", "nominal_yield_3m", "nominal_yield_24m", "nominal_yield_120m", "real_yield_24m", "real_yield_60m", "real_yield_120m")
 f <- fit[keep,]
 pretty <- c(headline_cpi_12m="Headline CPI inflation", ptr="PTR long-run inflation", cpi_forecast_1y="CPI forecast, 1 year", cpi_forecast_10y="CPI forecast, 10 years", tbill_forecast_1y="Treasury-bill forecast, 1 year", tbill_forecast_10y="Treasury-bill forecast, 10 years", nominal_yield_3m="Nominal yield, 3 months", nominal_yield_24m="Nominal yield, 2 years", nominal_yield_120m="Nominal yield, 10 years", real_yield_24m="Real yield, 2 years", real_yield_60m="Real yield, 5 years", real_yield_120m="Real yield, 10 years")
-fl <- c("\\begin{table}[!htbp]", "\\centering", "\\caption{Fit of macroeconomic expectations and yields}", "\\label{tab:fit}", "\\begin{threeparttable}", "\\begin{tabular*}{\\textwidth}{@{\\extracolsep{\\fill}}lrrr}", "\\toprule", "Series & Observations & RMSE (pp) & Correlation \\\\", "\\midrule")
-for(i in seq_len(nrow(f))) fl <- c(fl, paste0(pretty[[f$observable[i]]], " & ", f$observations[i], " & ", sprintf("%.3f", f$rmse_annual_pp[i]), " & ", sprintf("%.3f", f$correlation[i]), " \\\\"))
-fl <- c(fl, "\\bottomrule", "\\end{tabular*}", "\\begin{tablenotes}[flushleft]", "\\footnotesize", "\\item Notes: The RMSE is calculated over dates on which the corresponding observation is available; missing survey observations are left missing and are not carried forward. Inflation and interest rates are in annualized percentage points.", "\\end{tablenotes}", "\\end{threeparttable}", "\\end{table}")
+fl <- c("\\begin{table}[!htbp]", "\\centering", "\\caption{Fit of macroeconomic expectations and yields}", "\\label{tab:fit}", "\\begin{threeparttable}", "\\begin{tabular*}{\\textwidth}{@{\\extracolsep{\\fill}}lrrrr}", "\\toprule", "Series & Observations & RMSE (pp) & MAE (pp) & Correlation \\\\", "\\midrule")
+for(i in seq_len(nrow(f))) fl <- c(fl, paste0(pretty[[f$observable[i]]], " & ", f$observations[i], " & ", sprintf("%.3f", f$rmse_annual_pp[i]), " & ", sprintf("%.3f", f$mae_annual_pp[i]), " & ", sprintf("%.3f", f$correlation[i]), " \\\\"))
+fl <- c(fl, "\\bottomrule", "\\end{tabular*}", "\\begin{tablenotes}[flushleft]", "\\footnotesize", "\\item Notes: RMSE, MAE, and correlation are calculated over dates on which the corresponding observation is available. Missing survey observations are left missing and are not carried forward. Inflation and interest rates are in annualized percentage points.", "\\end{tablenotes}", "\\end{threeparttable}", "\\end{table}")
 writeLines(fl, file.path(out, "table_fit.tex"), useBytes=TRUE)

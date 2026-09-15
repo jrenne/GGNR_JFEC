@@ -39,6 +39,24 @@ build_filter_objects_reduced_hfi_no_output <- function(
   s_n <- sqrt(cumsum(diag(
     t(coefs_q$B_X_for) %*% base$Sigma2_X %*% coefs_q$B_X_for
   )))
+  # Integrate each three-month nominal forward over the physical future
+  # state distribution. Gaussian convolution adds the two variances.
+  tbill_terms <- list()
+  future_mean <- rep(0, K)
+  future_variance <- matrix(0, K, K)
+  B3 <- coefs_q$B_X_for[, 1:3, drop = FALSE]
+  for (j in seq_len(hstep_max - 1L)) {
+    future_mean <- as.vector(base$Mu + base$Phi %*% future_mean)
+    future_variance <- base$Phi %*% future_variance %*% t(base$Phi) + base$Sigma2_X
+    if ((j - 5L) %% 12L == 0L) {
+      tbill_terms[[as.character(j)]] <- list(
+        horizon = j,
+        intercept = as.vector(coefs_q$A_X_for[1:3] + t(B3) %*% future_mean) - p$r_lb,
+        loading = t(B3) %*% Phi_j[, , j],
+        sd = sqrt(c(0, s_n[1:2]^2) + diag(t(B3) %*% future_variance %*% B3))
+      )
+    }
+  }
   Gamma_macro <- rbind(L$inflation, L$inflation_target)
   Gamma_s <- matrix(0, ncol(data$surv_infexp), K)
   Gamma_s0 <- matrix(0, nrow(Gamma_s), 1)
@@ -72,6 +90,7 @@ build_filter_objects_reduced_hfi_no_output <- function(
     Mu = base$Mu, Phi = base$Phi, Sigma_X = base$Sigma,
     Sigma2_X = base$Sigma2_X, MuQ = base$MuQ, PhiQ = base$PhiQ,
     Phi_j = Phi_j, coefs_p = coefs_p, coefs_q = coefs_q, s_n = s_n,
+    tbill_terms = tbill_terms,
     pars = p, loadings = L, targets = targets,
     exact_moments = restricted$moments,
     Gamma_macro = Gamma_macro, Gamma_core = matrix(L$core_inflation, nrow = 1),
@@ -92,28 +111,22 @@ tbill_measurement_no_output <- function(x_pred, obj, horizons) {
   prediction <- rep(NaN, length(horizons))
   Gamma <- matrix(0, length(horizons), K)
   if (!length(horizons)) return(list(y_pred = prediction, Gamma = Gamma))
-  max_h <- max(horizons)
-  fit_all <- rep(NaN, max_h)
-  Gamma_all <- matrix(NaN, max_h, K)
-  x_h <- x_pred
-  if (max_h > 1L) for (j in seq_len(max_h - 1L)) {
-    x_h <- obj$Mu + obj$Phi %*% x_h
-    if ((j - 5L) %% 12L == 0L) {
-      fit <- y_fitting_r(
-        x_h, obj$coefs_q$A_X_for[1:3], obj$coefs_q$B_X_for[, 1:3],
-        obj$coefs_q$A_X_exp[1:3], obj$pars$r_lb, obj$s_n[1:3],
-        obj$coefs_q$A_X_for_pi[1:3], obj$coefs_q$B_X_pi[, 1:3],
-        obj$Sigma2_X, obj$coefs_q$B_X_cum[, 1:3],
-        obj$coefs_q$B_X_cum_pi[, 1:3]
-      )
-      fit_all[j + 1L] <- fit$yfit_all_n[1, 3]
-      Gamma_all[j + 1L, ] <- fit$JJ_n[3, ] %*% obj$Phi_j[, , j]
-    }
+  terms <- obj$tbill_terms
+  values <- numeric(length(terms))
+  jacobians <- matrix(0, length(terms), K)
+  for (j in seq_along(terms)) {
+    term <- terms[[j]]
+    mu <- as.vector(term$intercept + term$loading %*% x_pred)
+    z <- mu / term$sd
+    probability <- pnorm(z)
+    values[j] <- obj$pars$r_lb + mean(mu * probability + term$sd * dnorm(z))
+    jacobians[j, ] <- colMeans(probability * term$loading)
   }
+  dates_ahead <- vapply(terms, function(term) term$horizon, numeric(1))
   for (j in seq_along(horizons)) {
-    prediction[j] <- mean(fit_all[seq_len(horizons[j])], na.rm = TRUE)
-    Gamma[j, ] <- colMeans(Gamma_all[seq_len(horizons[j]), , drop = FALSE],
-                           na.rm = TRUE)
+    selected <- dates_ahead < horizons[j]
+    prediction[j] <- mean(values[selected])
+    Gamma[j, ] <- colMeans(jacobians[selected, , drop = FALSE])
   }
   list(y_pred = prediction, Gamma = Gamma)
 }

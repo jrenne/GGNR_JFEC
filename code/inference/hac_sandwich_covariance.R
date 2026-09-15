@@ -1,4 +1,4 @@
-# HAC sandwich covariance based on monthly likelihood-score contributions.
+# OPG-based HAC covariance using monthly likelihood-score contributions.
 # The outer-product-of-gradients (OPG) matrix supplies a stable bread;
 # a Bartlett/Newey-West estimate of the long-run score covariance supplies the meat.
 
@@ -16,12 +16,12 @@ if (!is.finite(lag_count) || lag_count < 0L) stop("Invalid HAC lag count.")
 inference <- readRDS(input_file)
 scores <- inference$scores
 if (is.null(scores) || any(!is.finite(scores))) stop("Scores are unavailable.")
+opg <- crossprod(scores) # Same uncentered information estimate as ordinary OPG.
 scores <- sweep(scores, 2, colMeans(scores), FUN = "-")
 observation_count <- nrow(scores)
 parameter_count <- ncol(scores)
 
-opg <- crossprod(scores)
-hac_meat <- opg
+hac_meat <- crossprod(scores) # Center only for the long-run score covariance.
 if (lag_count > 0L) {
   for (lag in seq_len(lag_count)) {
     weight <- 1 - lag / (lag_count + 1)
@@ -80,6 +80,6 @@ saveRDS(list(
   bread_rank = bread_decomposition$rank,
   bread_eigenvalues = bread_decomposition$values
 ), file.path(output_directory, "hac_sandwich_covariance.rds"))
-cat(sprintf("HAC sandwich: %d monthly lags; OPG bread rank %d/%d\n",
+cat(sprintf("OPG-HAC covariance: %d monthly lags; OPG bread rank %d/%d\n",
             lag_count, bread_decomposition$rank, parameter_count))
 print(summary_table)

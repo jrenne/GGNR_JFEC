@@ -25,6 +25,22 @@ Cached results are part of the replication record. Skipping a lengthy stage
 never means copying a finished manuscript figure: the corresponding plotting
 or table-building code is always rerun from the archived numerical output.
 
+The nominal pricing expression is exactly the Wu--Xia special case of the
+paper's formula. The pricing-accuracy exercise reports its errors alongside
+those of the real-bond extension against the same Monte Carlo benchmark.
+`code/validation/pricing_formula_alignment.R` can also be sourced in RStudio
+to check the analytical expressions, the zero-inflation identity, agreement
+between R and C++, and numerical derivatives. Premium calculations use the
+conditional shadow-rate variance under the corresponding pricing measure.
+Treasury-bill survey forecasts analytically integrate the three-month yield
+over the physical Gaussian future-state distribution; they do not evaluate
+the yield only at the expected state. Source
+`code/validation/survey_expectation_alignment.R` to check this integration
+and its derivatives. Ordinary OPG and OPG-HAC inference use the same raw-score
+OPG matrix; scores are centered only for the HAC long-run covariance.
+After inference, `code/validation/covariance_alignment.R` verifies this
+identity and reconstructs the Newey--West covariance independently.
+
 ## Running the package in RStudio
 
 Open `GGNR_JFEC.Rproj` in RStudio and then open `main.R`. A short block at the
@@ -83,7 +99,7 @@ GGNR_JFEC/
 │   ├── model/                     state-space, pricing, and filtering code
 │   ├── data/                      database-construction functions
 │   ├── estimation/                parameter mappings and likelihood routines
-│   ├── inference/                 OPG/HAC and uncertainty calculations
+│   ├── inference/                 OPG, OPG-HAC, and uncertainty calculations
 │   ├── validation/                pricing and filtering assessments
 │   └── outputs/                   table and figure builders
 ├── data/
@@ -135,7 +151,7 @@ providers and are not relicensed by this package.
 
 The retained model, all-R database construction, baseline and robustness
 estimations, inference calculations, validation exercises, and output builders
-are contained in this package. The original-submission package in
-`GGNR_Codes/` is left unchanged. The default `main.R` workflow has been run
+are contained in this package. The original-submission Matlab code is retained
+separately in `GGNR_Codes/matlab/` and is not used by this package. The default `main.R` workflow has been run
 from the frozen data and archived numerical results to reproduce the complete
 set of manuscript and Online Appendix outputs.

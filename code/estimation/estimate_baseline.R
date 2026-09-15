@@ -283,6 +283,8 @@ final_fit <- run_estimation_filter(best_parameters)
 best_parameters <- final_fit$objects$pars
 theta_final <- to_working(best_parameters)
 result <- list(
+  tbill_expectation = "analytically_integrated_gaussian",
+  pricing_formula = "unexpanded_wu_xia_nominal_with_real_interaction",
   specification = reduced_hfi_no_output_id,
   stage = "joint_final", preliminary = FALSE,
   filter_method = filter_method,

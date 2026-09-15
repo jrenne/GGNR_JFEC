@@ -1,0 +1,21 @@
+\begin{table}[!htbp]
+\centering
+\begin{threeparttable}
+\caption{Accuracy of the analytical bond-pricing approximation}\label{oa:tab_pricing_accuracy}
+\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}llrrrr}
+\toprule
+& & \multicolumn{4}{c}{Maturity}\\
+\cmidrule(lr){3-6}
+Security & Error statistic & 1 year & 2 years & 5 years & 10 years\\
+\midrule
+Nominal (Wu--Xia) & Mean absolute error & 0.04 & 0.11 & 0.33 & 0.71\\
+ & Maximum absolute error & 0.13 & 0.28 & 0.71 & 1.30\\
+Real & Mean absolute error & 0.04 & 0.11 & 0.33 & 0.67\\
+ & Maximum absolute error & 0.11 & 0.24 & 0.64 & 1.15\\
+\bottomrule
+\end{tabular*}
+\begin{tablenotes}\footnotesize
+\item Notes: Entries are absolute differences between approximate and Monte Carlo yields, in basis points, across the 27 observed-state configurations. The nominal approximation is exactly the Wu--Xia formula. Monte Carlo uses two million antithetic paths and an exact unconstrained-bond control variate. The maximum Monte Carlo standard error is 0.027 basis point.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}

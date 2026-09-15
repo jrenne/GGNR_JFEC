@@ -124,6 +124,74 @@ if (!run_simulation) {
   )
 }
 
+# Recompute approximation errors even when reusing exact Monte Carlo prices.
+# This keeps cached benchmarks valid after a change in the analytical code.
+reprice_cached <- function(results) {
+  for (eta in unique(results$eta)) {
+    co <- affine_coefs_r(Phi_q, mu_q, Sigma2, shadow_intercept,
+                         shadow_loading, inflation_intercept, c(0, 1, eta),
+                         maxmat = max(horizons))
+    sd <- sqrt(cumsum(diag(t(co$B_X_for) %*% Sigma2 %*% co$B_X_for)))
+    fitted <- y_fitting_r(t(states), co$A_X_for, co$B_X_for, co$A_X_exp,
+                          lower_bound, sd, co$A_X_for_pi, co$B_X_pi, Sigma2,
+                          co$B_X_cum, co$B_X_cum_pi, use_cpp = FALSE)
+    for (security in c("Nominal", "Real")) {
+      rows <- which(results$eta == eta & results$security == security)
+      values <- if (security == "Nominal") fitted$yfit_all_n else fitted$yfit_all_r
+      results$approximation[rows] <- 1200 * values[cbind(
+        results$state_id[rows], results$maturity_months[rows]
+      )]
+    }
+  }
+  results$error_bp <- 100 * (results$approximation - results$monte_carlo)
+  results
+}
+baseline <- reprice_cached(baseline)
+sensitivity <- reprice_cached(sensitivity)
+
+# Independent direct Wu-Xia evaluation on the same calibration and Monte
+# Carlo prices. Setting inflation to zero must give exactly nominal yields.
+nominal_coefs <- affine_coefs_r(
+  Phi_q, mu_q, Sigma2, shadow_intercept, shadow_loading,
+  0, rep(0, 3), maxmat = max(horizons)
+)
+nominal_sd <- sqrt(cumsum(diag(
+  t(nominal_coefs$B_X_for) %*% Sigma2 %*% nominal_coefs$B_X_for
+)))
+future <- 2:max(horizons)
+wx_mean <- sweep(states %*% nominal_coefs$B_X_for[, future], 2,
+                 as.vector(nominal_coefs$A_X_for[future]) - lower_bound, "+")
+wx_z <- sweep(wx_mean, 2, nominal_sd[future - 1], "/")
+wx_forward <- cbind(
+  pmax(shadow_intercept + as.vector(states %*% shadow_loading), lower_bound),
+  lower_bound + wx_mean * pnorm(wx_z) +
+    sweep(dnorm(wx_z), 2, nominal_sd[future - 1], "*")
+)
+wx_yields <- sweep(t(apply(wx_forward, 1, cumsum)), 2,
+                   seq_len(max(horizons)), "/")
+wx_comparison <- subset(baseline, security == "Nominal")
+wx_comparison$wu_xia_yield <- 1200 * wx_yields[cbind(
+  wx_comparison$state_id, wx_comparison$maturity_months
+)]
+wx_comparison$wu_xia_error_bp <- 100 *
+  (wx_comparison$wu_xia_yield - wx_comparison$monte_carlo)
+wx_comparison$implementation_difference_bp <- 100 *
+  (wx_comparison$approximation - wx_comparison$wu_xia_yield)
+zero_inflation <- y_fitting_r(
+  t(states), nominal_coefs$A_X_for, nominal_coefs$B_X_for,
+  nominal_coefs$A_X_exp, lower_bound, nominal_sd,
+  nominal_coefs$A_X_for_pi, nominal_coefs$B_X_pi, Sigma2,
+  nominal_coefs$B_X_cum, nominal_coefs$B_X_cum_pi, use_cpp = FALSE
+)
+stopifnot(max(abs(zero_inflation$yfit_all_n -
+                  zero_inflation$yfit_all_r)) < 1e-12)
+stopifnot(max(abs(1200 * zero_inflation$yfit_all_n[cbind(
+  wx_comparison$state_id, wx_comparison$maturity_months
+)] - wx_comparison$approximation)) < 1e-10)
+stopifnot(max(abs(wx_comparison$implementation_difference_bp)) < 1e-8)
+write.csv(wx_comparison, file.path(output_dir, "wu_xia_comparison.csv"),
+          row.names = FALSE)
+
 write.csv(baseline, file.path(output_dir, "state_by_state_results.csv"), row.names = FALSE)
 write.csv(sensitivity, file.path(output_dir, "covariance_sensitivity_results.csv"), row.names = FALSE)
 
@@ -150,6 +218,31 @@ write.csv(summary_main, file.path(output_dir, "error_summary_by_maturity.csv"), 
 write.csv(summary_region, file.path(output_dir, "error_summary_by_bound_region.csv"), row.names = FALSE)
 write.csv(summary_sensitivity, file.path(output_dir, "error_summary_covariance_sensitivity.csv"), row.names = FALSE)
 
+table_lines <- c("\\begin{table}[!htbp]", "\\centering",
+  "\\begin{threeparttable}",
+  "\\caption{Accuracy of the analytical bond-pricing approximation}\\label{oa:tab_pricing_accuracy}",
+  "\\begin{tabular*}{\\textwidth}{@{\\extracolsep{\\fill}}llrrrr}",
+  "\\toprule", "& & \\multicolumn{4}{c}{Maturity}\\\\",
+  "\\cmidrule(lr){3-6}",
+  "Security & Error statistic & 1 year & 2 years & 5 years & 10 years\\\\",
+  "\\midrule")
+for (security in c("Nominal", "Real")) {
+  z <- summary_main[summary_main$security == security, ]
+  z <- z[order(z$maturity_months), ]
+  label <- if (security == "Nominal") "Nominal (Wu--Xia)" else "Real"
+  table_lines <- c(table_lines,
+    paste0(label, " & Mean absolute error & ",
+           paste(sprintf("%.2f", z$mean_abs_error_bp), collapse = " & "), "\\\\"),
+    paste0(" & Maximum absolute error & ",
+           paste(sprintf("%.2f", z$max_abs_error_bp), collapse = " & "), "\\\\"))
+}
+table_lines <- c(table_lines, "\\bottomrule", "\\end{tabular*}",
+  "\\begin{tablenotes}\\footnotesize",
+  "\\item Notes: Entries are absolute differences between approximate and Monte Carlo yields, in basis points, across the 27 observed-state configurations. The nominal approximation is exactly the Wu--Xia formula. Monte Carlo uses two million antithetic paths and an exact unconstrained-bond control variate. The maximum Monte Carlo standard error is 0.027 basis point.",
+  "\\end{tablenotes}", "\\end{threeparttable}", "\\end{table}")
+dir.create("outputs/tables", recursive = TRUE, showWarnings = FALSE)
+writeLines(table_lines, "outputs/tables/table_pricing_accuracy.tex")
+
 parameter_table <- data.frame(
   factor = c("Real-rate factor", "Inflation-target factor", "Transitory common factor"),
   persistence = rho,
@@ -160,6 +253,7 @@ parameter_table <- data.frame(
 write.csv(parameter_table, file.path(output_dir, "calibration.csv"), row.names = FALSE)
 
 baseline$maturity <- factor(baseline$maturity, levels = c("1y", "2y", "5y", "10y"))
+set.seed(271828) # Reproducible horizontal jitter in the figure.
 p <- ggplot(baseline, aes(shadow_rate, error_bp, shape = maturity)) +
   geom_hline(yintercept = 0, linewidth = 0.55, colour = "grey55") +
   geom_point(size = 2.25, stroke = 0.65, colour = "grey25", alpha = 0.82,

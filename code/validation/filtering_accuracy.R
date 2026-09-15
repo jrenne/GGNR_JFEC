@@ -436,7 +436,7 @@ inflation_compensation_states <- function(coefs, states, maturities) {
     loading <- rowSums(coefs$B_X_pi[, seq_len(maturity), drop = FALSE]) /
       maturity
     intercept <- sum(coefs$A_X_exp_pi[seq_len(maturity)]) / maturity +
-      0.5 * sum(coefs$Conv_pi[seq_len(maturity)]) / maturity^2
+      0.5 * sum(coefs$Conv_pi[seq_len(maturity)]) / maturity
     intercept + as.numeric(states %*% loading)
   }, numeric(nrow(states)))
 }
@@ -444,7 +444,7 @@ inflation_compensation_states <- function(coefs, states, maturities) {
 premium_series <- function(states) {
   fitted <- function(coefs) y_fitting_r(
     t(states), coefs$A_X_for, coefs$B_X_for, coefs$A_X_exp,
-    p$r_lb, obj$s_n, coefs$A_X_for_pi, coefs$B_X_pi,
+    p$r_lb, sqrt(cumsum(diag(t(coefs$B_X_for) %*% obj$Sigma2_X %*% coefs$B_X_for))), coefs$A_X_for_pi, coefs$B_X_pi,
     obj$Sigma2_X, coefs$B_X_cum, coefs$B_X_cum_pi
   )
   physical <- fitted(obj$coefs_p)

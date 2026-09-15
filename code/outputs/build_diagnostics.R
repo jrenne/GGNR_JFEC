@@ -86,10 +86,14 @@ for (j in seq_len(ncol(data$yields_r))) {
 
 summarize_item <- function(name, item) {
   keep <- is.finite(item[[1]]) & is.finite(item[[2]])
+  observed <- item[[1]][keep]
+  fitted <- item[[2]][keep]
+  errors <- observed - fitted
   data.frame(
     observable = name, observations = sum(keep),
-    rmse_annual_pp = 1200 * sqrt(mean((item[[1]][keep] - item[[2]][keep])^2)),
-    correlation = if (sum(keep) > 2) cor(item[[1]][keep], item[[2]][keep]) else NA_real_
+    rmse_annual_pp = 1200 * sqrt(mean(errors^2)),
+    mae_annual_pp = 1200 * mean(abs(errors)),
+    correlation = if (sum(keep) > 2) cor(observed, fitted) else NA_real_
   )
 }
 fit_summary <- do.call(rbind, Map(summarize_item, names(items), items))

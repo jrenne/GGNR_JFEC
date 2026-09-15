@@ -32,7 +32,7 @@ states <- t(fit$x_upd)
 
 fitted_yields <- function(coefs) y_fitting_r(
   states, coefs$A_X_for, coefs$B_X_for, coefs$A_X_exp,
-  obj$pars$r_lb, obj$s_n, coefs$A_X_for_pi, coefs$B_X_pi,
+  obj$pars$r_lb, sqrt(cumsum(diag(t(coefs$B_X_for) %*% obj$Sigma2_X %*% coefs$B_X_for))), coefs$A_X_for_pi, coefs$B_X_pi,
   obj$Sigma2_X, coefs$B_X_cum, coefs$B_X_cum_pi
 )
 y_q <- fitted_yields(obj$coefs_q)
@@ -53,7 +53,7 @@ inflation_compensation <- function(coefs) {
     maturity <- maturities[j]
     loading <- rowSums(coefs$B_X_pi[, seq_len(maturity), drop = FALSE]) / maturity
     intercept <- sum(coefs$A_X_exp_pi[seq_len(maturity)]) / maturity +
-      0.5 * sum(coefs$Conv_pi[seq_len(maturity)]) / maturity^2
+      0.5 * sum(coefs$Conv_pi[seq_len(maturity)]) / maturity
     out[, j] <- intercept + as.numeric(t(loading) %*% states)
   }
   out
@@ -102,7 +102,7 @@ draw_panel <- function(model5, model10, benchmark1, survey, title,
                        benchmark1_label, benchmark2 = NULL,
                        benchmark2_label = NULL) {
   all_values <- c(model5, model10, benchmark1, benchmark2, survey)
-  limits <- quantile(all_values[is.finite(all_values)], c(0.005, 0.995))
+  limits <- range(c(0, all_values), finite = TRUE)
   plot(data$dates, model5, type = "l", lwd = 2.5, col = colors["model5"],
        xlab = "", ylab = "percentage points", main = title, ylim = limits)
   lines(data$dates, model10, lwd = 2.5, lty = 2, col = colors["model10"])
@@ -122,7 +122,7 @@ draw_panel <- function(model5, model10, benchmark1, survey, title,
     line_colors <- c(line_colors, colors["benchmark2"])
   }
   labels <- c(labels, "Survey model-free 10y")
-  legend("topright", legend = labels,
+  legend("topright", legend = labels, ncol = 2,
          col = c(line_colors, colors["survey"]),
          lty = c(line_types, NA), pch = c(rep(NA, length(line_types)), 4),
          lwd = c(rep(2.3, length(line_types)), 2.5), pt.cex = 1.25, cex = 1.02,
@@ -134,6 +134,7 @@ png(file.path(figure_directory, "risk_premia.png"),
 par(mfrow = c(3, 1), mar = c(3.6, 5.0, 3.0, 1),
     cex.axis = 1.15, cex.lab = 1.20, cex.main = 1.35, font.main = 2,
     mgp = c(2.8, 0.85, 0), tcl = -0.35)
+par(cex = 1) # Restore full-size text after the multi-panel layout.
 draw_panel(
   premium_data$nominal_tp_5y, premium_data$nominal_tp_10y,
   premium_data$nominal_tp_10y_acm, premium_data$nominal_tp_10y_survey,
@@ -155,6 +156,7 @@ pdf(file.path(figure_directory, "risk_premia.pdf"), width = 10, height = 10)
 par(mfrow = c(3, 1), mar = c(3.6, 5.0, 3.0, 1),
     cex.axis = 1.15, cex.lab = 1.20, cex.main = 1.35, font.main = 2,
     mgp = c(2.8, 0.85, 0), tcl = -0.35)
+par(cex = 1) # Restore full-size text after the multi-panel layout.
 draw_panel(
   premium_data$nominal_tp_5y, premium_data$nominal_tp_10y,
   premium_data$nominal_tp_10y_acm, premium_data$nominal_tp_10y_survey,

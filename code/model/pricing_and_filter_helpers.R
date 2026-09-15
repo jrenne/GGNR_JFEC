@@ -71,9 +71,14 @@ y_fitting_r_pure <- function(X0, A_X_for, B_X_for, A_X_exp, r_lb, s_n,
   Probs <- cbind(Probs_short, Probs_long)
   pdf_z <- dnorm(z_n)
 
-  f_fit_long <- r_lb + mu * Probs_long +
-    sweep(pdf_z, 2, s_n[1:(Mm - 1)], "*") +
-    sweep(Probs_long, 2, as.vector(A_X_for[2:Mm] - A_X_exp[2:Mm]), "*")
+  # Wu-Xia nominal term: the convexity correction belongs inside g.
+  # The real-rate interaction retains the unshifted probability Probs_long.
+  nominal_mu <- sweep(mu, 2,
+                      as.vector(A_X_for[2:Mm] - A_X_exp[2:Mm]), "+")
+  nominal_z <- sweep(nominal_mu, 2, s_n[1:(Mm - 1)], "/")
+  nominal_probability <- pnorm(nominal_z)
+  f_fit_long <- r_lb + nominal_mu * nominal_probability +
+    sweep(dnorm(nominal_z), 2, s_n[1:(Mm - 1)], "*")
   f_fit <- cbind(y_fit_short, f_fit_long)
   yfit_all_n <- t(apply(f_fit, 1, cumsum)) / matrix(seq_len(Mm), T0, Mm,
                                                     byrow = TRUE)
@@ -98,7 +103,7 @@ y_fitting_r_pure <- function(X0, A_X_for, B_X_for, A_X_exp, r_lb, s_n,
     }
     JJ_r[rows, 1] <- JJ_f[rows, 1] - B_X_pi[, 1]
     for (m in 2:Mm) {
-      JJ_f[rows, m] <- Probs_long[tt, m - 1] * B_X_for[, m]
+      JJ_f[rows, m] <- nominal_probability[tt, m - 1] * B_X_for[, m]
       JJ_r[rows, m] <- JJ_f[rows, m] - B_X_pi[, m] +
         (pdf_z[tt, m - 1] / s_n[m - 1]) * B_X_for[, m] *
         BXcumSig2BXcum_pi[m]
@@ -767,7 +772,8 @@ postfit_jfec <- function(kf_res, surv_tbexp, hstep_t, mats_n, mats_r) {
 
   fit_p <- y_fitting_r(
     t(x_upd), obj$coefs_p$A_X_for, obj$coefs_p$B_X_for,
-    obj$coefs_p$A_X_exp, obj$pars$r_lb, obj$s_n,
+    obj$coefs_p$A_X_exp, obj$pars$r_lb,
+    sqrt(cumsum(diag(t(obj$coefs_p$B_X_for) %*% obj$Sigma2_X %*% obj$coefs_p$B_X_for))),
     obj$coefs_p$A_X_for_pi, obj$coefs_p$B_X_pi, obj$Sigma2_X,
     obj$coefs_p$B_X_cum, obj$coefs_p$B_X_cum_pi
   )

@@ -40,16 +40,19 @@ colnames(state_sd) <- colnames(states)
 
 colors <- c(model = "black", observed = "grey45", comparison = "grey30",
             comparison2 = "grey65")
-publication_par <- function(...) par(
-  cex.axis = 1.15, cex.lab = 1.20, cex.main = 1.15,
-  font.main = 2, mgp = c(2.6, 0.8, 0), tcl = -0.35, ...
-)
+publication_par <- function(...) {
+  par(
+    cex.axis = 1.15, cex.lab = 1.20, cex.main = 1.15,
+    font.main = 2, mgp = c(2.6, 0.8, 0), tcl = -0.35, ...
+  )
+  par(cex = 1) # Set after mfrow, which otherwise shrinks panel text.
+}
 draw_fit <- function(observed, fitted, panel_title, legend_position = NULL) {
   observed <- 1200 * observed
   fitted <- 1200 * fitted
   limits <- range(c(observed, fitted), finite = TRUE)
   plot(dates, fitted, type = "l", col = colors["model"], lwd = 2.4,
-       xlab = "", ylab = "Annualized percentage points",
+       xlab = "", ylab = "Percentage points",
        main = panel_title, ylim = limits)
   points(dates, observed, col = colors["observed"], pch = 16, cex = 0.68)
   grid(col = "grey88", lty = 1)
@@ -118,53 +121,63 @@ benchmark_hlw <- benchmark$HLW[match(dates, benchmark$date)]
 r_star <- 1200 * states[, "r_star"]
 pi_star <- 1200 * states[, "pi_star"]
 w <- states[, "w"]
-r_star_band <- 1.96 * 1200 * state_sd[, "r_star"]
-pi_star_band <- 1.96 * 1200 * state_sd[, "pi_star"]
-w_band <- 1.96 * state_sd[, "w"]
-pdf(file.path(output_directory, "fig_states.pdf"),
-    width = 10, height = 8.8, useDingbats = FALSE)
-publication_par(mfrow = c(3, 1), mar = c(3.4, 4.8, 2.8, 0.8))
-limits <- range(c(r_star - r_star_band, r_star + r_star_band,
-                  benchmark_hlw, benchmark_lw), finite = TRUE)
-plot(dates, r_star, type = "n",
-     xlab = "", ylab = "Percent", main = "(a) Real-rate trend", ylim = limits)
-polygon(c(dates, rev(dates)),
-        c(r_star - r_star_band, rev(r_star + r_star_band)),
-        col = "grey85", border = NA)
-lines(dates, r_star, lwd = 2.4, col = colors["model"])
-lines(dates, benchmark_hlw, col = colors["comparison"], lty = 2, lwd = 2.0)
-lines(dates, benchmark_lw, col = colors["comparison2"], lty = 3, lwd = 2.0)
-grid(col = "grey90", lty = 1)
-legend("bottomleft", c("Model", "95% filtered interval", "HLW", "LW"),
-       col = c(colors["model"], "grey85", colors["comparison"], colors["comparison2"]),
-       lty = c(1, NA, 2, 3), lwd = c(2.4, NA, 2.0, 2.0),
-       pch = c(NA, 15, NA, NA), pt.cex = c(NA, 1.5, NA, NA), cex = 1.00,
-       bg = adjustcolor("white", alpha.f = 0.9))
-plot(dates, pi_star, type = "n", xlab = "", ylab = "Percent",
-     main = "(b) Inflation trend",
-     ylim = range(c(pi_star - pi_star_band, pi_star + pi_star_band,
-                   1200 * data$macro[, 4]), finite = TRUE))
-polygon(c(dates, rev(dates)),
-        c(pi_star - pi_star_band, rev(pi_star + pi_star_band)),
-        col = "grey85", border = NA)
-lines(dates, pi_star, lwd = 2.4, col = colors["model"])
-points(dates, 1200 * data$macro[, 4], col = colors["observed"], pch = 16, cex = 0.68)
-grid(col = "grey90", lty = 1)
-legend("topright", c("Model", "95% filtered interval", "PTR observations"),
-       col = c(colors["model"], "grey85", colors["observed"]), lty = c(1, NA, NA),
-       pch = c(NA, 15, 16), pt.cex = c(NA, 1.5, 1.25),
-       lwd = c(2.4, NA, NA), cex = 1.00,
-       bg = adjustcolor("white", alpha.f = 0.9))
-plot(dates, w, type = "n", xlab = "", ylab = "Normalized units",
-     main = "(c) Price-of-risk state",
-     ylim = range(c(w - w_band, w + w_band), finite = TRUE))
-polygon(c(dates, rev(dates)), c(w - w_band, rev(w + w_band)),
-        col = "grey85", border = NA)
-lines(dates, w, lwd = 2.4, col = colors["model"])
-abline(h = 0, col = "grey65", lwd = 0.8)
-grid(col = "grey90", lty = 1)
-dev.off()
+# Pointwise Hamilton-style bands include filtering and parameter uncertainty.
+uncertainty_directory <- Sys.getenv(
+  "GGNR_HAMILTON_DIR", "outputs/diagnostics/uncertainty"
+)
+state_bands <- read.csv(file.path(uncertainty_directory, "state_bands.csv"))
+stopifnot(identical(as.Date(state_bands$date), as.Date(dates)))
+stopifnot(isTRUE(all.equal(state_bands$r_star_estimate, as.numeric(r_star))),
+          isTRUE(all.equal(state_bands$pi_star_estimate, as.numeric(pi_star))),
+          isTRUE(all.equal(state_bands$w_estimate, as.numeric(w))))
 
+draw_state_panel <- function(prefix, estimate, panel_title, ylab,
+                             comparisons = numeric()) {
+  lower <- state_bands[[paste0(prefix, "_p025")]]
+  upper <- state_bands[[paste0(prefix, "_p975")]]
+  plot(dates, estimate, type = "n", xlab = "", ylab = ylab,
+       main = panel_title, ylim = range(c(lower, upper, comparisons), finite = TRUE))
+  polygon(c(dates, rev(dates)), c(lower, rev(upper)),
+          col = "grey85", border = NA)
+  grid(col = "grey92", lty = 1)
+  lines(dates, estimate, lwd = 3, col = "black")
+}
+
+pdf(file.path(output_directory, "fig_states.pdf"),
+    width = 8, height = 9, pointsize = 12.5, useDingbats = FALSE)
+par(mfrow = c(3, 1), mar = c(2.6, 4.1, 2.3, 0.8))
+# Reset the automatic mfrow text shrinkage for a three-panel figure.
+par(cex = 1, cex.axis = 1.08, cex.lab = 1.10, cex.main = 1.14,
+    font.main = 2, mgp = c(2.6, 0.75, 0), tcl = -0.3, las = 1)
+draw_state_panel("r_star", r_star, "(a) Real-rate trend", "Percent",
+                 c(benchmark_hlw, benchmark_lw))
+# Connect the available quarterly estimates; missing monthly rows otherwise
+# break every line segment and make the comparison series disappear.
+hlw_available <- is.finite(benchmark_hlw)
+lw_available <- is.finite(benchmark_lw)
+lines(dates[hlw_available], benchmark_hlw[hlw_available],
+      col = colors["comparison"], lty = 2, lwd = 2.6)
+lines(dates[lw_available], benchmark_lw[lw_available],
+      col = colors["comparison2"], lty = 3, lwd = 2.6)
+legend("bottomleft", c("Model", "95% interval", "HLW", "LW"), ncol = 2,
+       col = c("black", "grey85", colors["comparison"], colors["comparison2"]),
+       lty = c(1, NA, 2, 3), lwd = c(3, NA, 2.6, 2.6),
+       pch = c(NA, 15, NA, NA), pt.cex = 1.5, cex = 1,
+       bg = "white", box.col = "grey75")
+
+draw_state_panel("pi_star", pi_star, "(b) Inflation trend", "Percent",
+                 1200 * data$macro[, 4])
+points(dates, 1200 * data$macro[, 4], col = colors["observed"],
+       pch = 16, cex = 0.85)
+legend("topright", c("Model", "95% interval", "PTR"), ncol = 3,
+       col = c("black", "grey85", colors["observed"]), lty = c(1, NA, NA),
+       pch = c(NA, 15, 16), pt.cex = c(1, 1.5, 1),
+       lwd = c(3, NA, NA), cex = 1, bg = "white", box.col = "grey75")
+
+draw_state_panel("w", w, "(c) Price-of-risk state", "Normalized units")
+abline(h = 0, col = "grey60", lwd = 1, lty = 3)
+lines(dates, w, lwd = 3)
+dev.off()
 effective <- 1200 * data$effective_federal_funds_rate
 shadow <- 1200 * (states[, "r_star"] + states[, "pi_star"] + states[, "m"])
 pdf(file.path(output_directory, "fig_shadow_rate.pdf"),

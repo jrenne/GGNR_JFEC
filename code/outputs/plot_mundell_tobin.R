@@ -71,13 +71,12 @@ selected_real_yields <- function(X) {
                 2, obj$pars$r_lb, "-")
     probabilities <- sweep(mu, 2, obj$s_n[seq_len(max_maturity - 1L)], "/")
     probabilities <- pnorm(probabilities)
-    densities <- dnorm(sweep(mu, 2, obj$s_n[seq_len(max_maturity - 1L)], "/"))
+    nominal_mu <- sweep(mu, 2, as.vector(coefs$A_X_for[2:max_maturity] -
+                                          coefs$A_X_exp[2:max_maturity]), "+")
+    nominal_z <- sweep(nominal_mu, 2, obj$s_n[seq_len(max_maturity - 1L)], "/")
     fitted_forwards[, 2:max_maturity] <- obj$pars$r_lb +
-      mu * probabilities +
-      sweep(densities, 2, obj$s_n[seq_len(max_maturity - 1L)], "*") +
-      sweep(probabilities, 2,
-            as.vector(coefs$A_X_for[2:max_maturity] -
-                        coefs$A_X_exp[2:max_maturity]), "*")
+      nominal_mu * pnorm(nominal_z) +
+      sweep(dnorm(nominal_z), 2, obj$s_n[seq_len(max_maturity - 1L)], "*")
   }
   inflation_forwards <- sweep(
     t(X) %*% coefs$B_X_pi[, seq_len(max_maturity), drop = FALSE],
@@ -103,6 +102,14 @@ conditional_correlations <- matrix(
   NA_real_, nrow = ncol(states), ncol = length(maturities),
   dimnames = list(NULL, paste0(maturities, "m"))
 )
+# Check the inexpensive simulation formula against the common pricing routine.
+check_states <- states[, seq_len(min(3L, ncol(states))), drop = FALSE]
+check_full <- y_fitting_r(check_states, obj$coefs_q$A_X_for,
+  obj$coefs_q$B_X_for, obj$coefs_q$A_X_exp, obj$pars$r_lb, obj$s_n,
+  obj$coefs_q$A_X_for_pi, obj$coefs_q$B_X_pi, obj$Sigma2_X,
+  obj$coefs_q$B_X_cum, obj$coefs_q$B_X_cum_pi)
+stopifnot(max(abs(selected_real_yields(check_states) -
+                   check_full$yfit_all_r[, maturities])) < 1e-12)
 for (tt in seq_len(ncol(states))) {
   conditional_mean <- as.numeric(mu_h + Phi_h %*% states[, tt])
   simulated_states <- conditional_innovations + conditional_mean

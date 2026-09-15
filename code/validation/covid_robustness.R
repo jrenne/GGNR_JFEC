@@ -58,7 +58,7 @@ calculate_premia <- function(fit) {
   obj <- fit$objects
   fitted <- function(coefs) y_fitting_r(
     states, coefs$A_X_for, coefs$B_X_for, coefs$A_X_exp,
-    obj$pars$r_lb, obj$s_n, coefs$A_X_for_pi, coefs$B_X_pi,
+    obj$pars$r_lb, sqrt(cumsum(diag(t(coefs$B_X_for) %*% obj$Sigma2_X %*% coefs$B_X_for))), coefs$A_X_for_pi, coefs$B_X_pi,
     obj$Sigma2_X, coefs$B_X_cum, coefs$B_X_cum_pi
   )
   y_q <- fitted(obj$coefs_q)
@@ -68,7 +68,7 @@ calculate_premia <- function(fit) {
     loading <- rowSums(coefs$B_X_pi[, seq_len(maturity), drop = FALSE]) /
       maturity
     intercept <- sum(coefs$A_X_exp_pi[seq_len(maturity)]) / maturity +
-      0.5 * sum(coefs$Conv_pi[seq_len(maturity)]) / maturity^2
+      0.5 * sum(coefs$Conv_pi[seq_len(maturity)]) / maturity
     intercept + as.numeric(t(loading) %*% states)
   }
   cbind(

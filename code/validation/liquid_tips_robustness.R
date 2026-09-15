@@ -69,7 +69,7 @@ calculate_premia <- function(fit) {
   obj <- fit$objects
   fitted <- function(coefs) y_fitting_r(
     states, coefs$A_X_for, coefs$B_X_for, coefs$A_X_exp,
-    obj$pars$r_lb, obj$s_n, coefs$A_X_for_pi, coefs$B_X_pi,
+    obj$pars$r_lb, sqrt(cumsum(diag(t(coefs$B_X_for) %*% obj$Sigma2_X %*% coefs$B_X_for))), coefs$A_X_for_pi, coefs$B_X_pi,
     obj$Sigma2_X, coefs$B_X_cum, coefs$B_X_cum_pi
   )
   y_q <- fitted(obj$coefs_q)
@@ -79,7 +79,7 @@ calculate_premia <- function(fit) {
     loading <- rowSums(coefs$B_X_pi[, seq_len(maturity), drop = FALSE]) /
       maturity
     intercept <- sum(coefs$A_X_exp_pi[seq_len(maturity)]) / maturity +
-      0.5 * sum(coefs$Conv_pi[seq_len(maturity)]) / maturity^2
+      0.5 * sum(coefs$Conv_pi[seq_len(maturity)]) / maturity
     intercept + as.numeric(t(loading) %*% states)
   }
   cbind(
@@ -210,7 +210,7 @@ draw_sensitivity_panel <- function(baseline_series, sensitivity_series,
   limits <- range(c(baseline_series, sensitivity_series, comparison_series),
                   finite = TRUE)
   plot(dates, baseline_series, type = "n", ylim = limits, xlab = "",
-       ylab = "Annualized percentage points", main = panel_title)
+       ylab = "Percentage points", main = panel_title)
   usr <- par("usr")
   rect(min(dates), usr[3], as.Date("2003-12-31"), usr[4],
        col = "grey94", border = NA)
@@ -255,6 +255,7 @@ draw_sensitivity_figure <- function() {
   par(mfrow = c(3, 1), mar = c(3.7, 5.3, 2.9, 1.0),
       cex.axis = 1.15, cex.lab = 1.18, cex.main = 1.25,
       font.main = 2, mgp = c(3.0, 0.85, 0), tcl = -0.35)
+  par(cex = 1) # Restore full-size text after the multi-panel layout.
   draw_sensitivity_panel(
     baseline_objects[, "real_yield_10y"],
     robust_objects[, "real_yield_10y"],

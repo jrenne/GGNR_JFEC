@@ -86,8 +86,13 @@ Rcpp::List y_fitting_jfec_cpp(const NumericMatrix& X0,
       double pdf_z = norm_pdf(z_n);
       Probs(t, m) = prob_long;
 
-      f_fit[m] = r_lb + mu * prob_long + pdf_z * s_n[m - 1] +
-        prob_long * (A_X_for[m] - A_X_exp[m]);
+      // Evaluate the unexpanded Wu-Xia term, with convexity inside g.
+      // The real-rate interaction below uses the unshifted probability.
+      double nominal_mu = mu + A_X_for[m] - A_X_exp[m];
+      double nominal_z = nominal_mu / s_n[m - 1];
+      double nominal_probability = norm_cdf(nominal_z);
+      f_fit[m] = r_lb + nominal_mu * nominal_probability +
+        norm_pdf(nominal_z) * s_n[m - 1];
 
       double pi_fit = A_X_for_pi[m];
       for (int k = 0; k < K; ++k) {
@@ -97,7 +102,7 @@ Rcpp::List y_fitting_jfec_cpp(const NumericMatrix& X0,
 
       for (int k = 0; k < K; ++k) {
         int row = t * K + k;
-        double jj_f = prob_long * B_X_for(k, m);
+        double jj_f = nominal_probability * B_X_for(k, m);
         double jj_real = jj_f - B_X_pi(k, m) +
           (pdf_z / s_n[m - 1]) * B_X_for(k, m) * BXcumSig2BXcum_pi[m];
         JJ_n(m, row) = JJ_n(m - 1, row) + jj_f;
@@ -128,4 +133,3 @@ Rcpp::List y_fitting_jfec_cpp(const NumericMatrix& X0,
     _["Probs"] = Probs
   );
 }
-

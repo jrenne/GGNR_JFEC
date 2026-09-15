@@ -120,7 +120,7 @@ inflation_compensation <- function(coefs, states, maturities) {
     loading <- rowSums(coefs$B_X_pi[, seq_len(maturity), drop = FALSE]) /
       maturity
     intercept <- sum(coefs$A_X_exp_pi[seq_len(maturity)]) / maturity +
-      0.5 * sum(coefs$Conv_pi[seq_len(maturity)]) / maturity^2
+      0.5 * sum(coefs$Conv_pi[seq_len(maturity)]) / maturity
     intercept + as.numeric(states %*% loading)
   }, numeric(nrow(states)))
 }
@@ -128,7 +128,7 @@ inflation_compensation <- function(coefs, states, maturities) {
 calculate_premia <- function(fit, states) {
   fitted <- function(coefs) y_fitting_r(
     t(states), coefs$A_X_for, coefs$B_X_for, coefs$A_X_exp,
-    fit$objects$pars$r_lb, fit$objects$s_n, coefs$A_X_for_pi,
+    fit$objects$pars$r_lb, sqrt(cumsum(diag(t(coefs$B_X_for) %*% fit$objects$Sigma2_X %*% coefs$B_X_for))), coefs$A_X_for_pi,
     coefs$B_X_pi, fit$objects$Sigma2_X, coefs$B_X_cum,
     coefs$B_X_cum_pi
   )
@@ -160,9 +160,12 @@ if (!is.finite(baseline_fit$fval) ||
     abs(baseline_fit$fval - estimate$final_loglik) > 1e-6) {
   stop("The working-parameter mapping does not reproduce the saved estimate.")
 }
-selected_states <- c("r_star", "pi_star")
-baseline_states <-
-  1200 * baseline_fit$x_upd[, selected_states, drop = FALSE]
+selected_states <- c("r_star", "pi_star", "w")
+# Trends are reported in annualized percentage points; w is dimensionless.
+state_scales <- c(r_star = 1200, pi_star = 1200, w = 1)
+baseline_states <- sweep(
+  baseline_fit$x_upd[, selected_states, drop = FALSE], 2, state_scales, "*"
+)
 baseline_premia <- calculate_premia(baseline_fit, baseline_fit$x_upd)
 
 evaluate_draw <- function(seed) {
@@ -190,13 +193,16 @@ evaluate_draw <- function(seed) {
       conditional_variance <- t(vapply(
         seq_len(nrow(state_path)),
         function(index) diag(fit$P_upd[, , index])[selected_states],
-        numeric(2)
+        numeric(length(selected_states))
       ))
       list(
         ok = TRUE, attempt = attempt,
-        state_path = 1200 * state_path[, selected_states, drop = FALSE],
-        state_mean = 1200 * fit$x_upd[, selected_states, drop = FALSE],
-        state_filter_variance = 1200^2 * conditional_variance,
+        state_path = sweep(state_path[, selected_states, drop = FALSE],
+                           2, state_scales, "*"),
+        state_mean = sweep(fit$x_upd[, selected_states, drop = FALSE],
+                           2, state_scales, "*"),
+        state_filter_variance = sweep(conditional_variance,
+                                     2, state_scales^2, "*"),
         premia = premia
       )
     }, error = function(error) {
@@ -248,7 +254,7 @@ array_bands <- function(values, series_names, point_estimates) {
   output
 }
 state_bands <- array_bands(
-  state_paths, c("r_star", "pi_star"), baseline_states
+  state_paths, selected_states, baseline_states
 )
 premium_bands <- array_bands(
   premium_paths,
@@ -257,10 +263,10 @@ premium_bands <- array_bands(
 )
 
 state_variance_decomposition <- data.frame(date = data$dates)
-for (series in seq_len(2)) {
+for (series in seq_along(selected_states)) {
   filter_component <- rowMeans(state_filter_variances[, series, ])
   parameter_component <- apply(state_means[, series, ], 1, var)
-  prefix <- c("r_star", "pi_star")[series]
+  prefix <- selected_states[series]
   state_variance_decomposition[[paste0(prefix, "_filter_variance")]] <-
     filter_component
   state_variance_decomposition[[paste0(prefix, "_parameter_variance")]] <-
@@ -301,7 +307,7 @@ saveRDS(list(
   parameter_covariance_eigenvalues = parameter_decomposition$eigenvalues,
   baseline_states = baseline_states, baseline_premia = baseline_premia,
   state_information_set = "filtered",
-  parameter_distribution = "asymptotic normal using HAC sandwich covariance",
+  parameter_distribution = "asymptotic normal using OPG-based HAC covariance",
   exact_moment_targets_treated_as_fixed = TRUE
 ), file.path(output_directory, "hamilton_uncertainty.rds"))
 

@@ -48,6 +48,7 @@ draw_premium_figure <- function() {
   par(mfrow = c(3, 1), mar = c(3.4, 5.1, 3.0, 1.0),
       cex.axis = 1.12, cex.lab = 1.18, cex.main = 1.28,
       mgp = c(2.8, 0.8, 0), tcl = -0.3)
+  par(cex = 1) # Restore full-size text after the multi-panel layout.
   draw_band(premia, "nominal_10y", "(a) 10-year nominal term premium", TRUE)
   legend("topright", c("Estimate", "68% interval", "95% interval"),
          lty = c(1, NA, NA), lwd = c(2.5, NA, NA),
