@@ -7,23 +7,28 @@
 \toprule
 Series & Observations & RMSE (pp) & MAE (pp) & Correlation \\
 \midrule
-Headline CPI inflation & 673 & 0.893 & 0.694 & 0.951 \\
+Headline CPI inflation, 12 months & 673 & 0.893 & 0.694 & 0.951 \\
 PTR long-run inflation & 230 & 0.810 & 0.537 & 0.956 \\
 CPI forecast, 1 year & 181 & 0.928 & 0.569 & 0.941 \\
 CPI forecast, 10 years & 140 & 0.204 & 0.155 & 0.901 \\
 Treasury-bill forecast, 1 year & 181 & 0.454 & 0.341 & 0.989 \\
 Treasury-bill forecast, 10 years & 35 & 0.335 & 0.276 & 0.949 \\
 Nominal yield, 3 months & 694 & 0.047 & 0.034 & 1.000 \\
+Nominal yield, 1 year & 695 & 0.080 & 0.060 & 1.000 \\
 Nominal yield, 2 years & 695 & 0.034 & 0.026 & 1.000 \\
+Nominal yield, 3 years & 695 & 0.045 & 0.033 & 1.000 \\
+Nominal yield, 5 years & 695 & 0.050 & 0.039 & 1.000 \\
+Nominal yield, 7 years & 695 & 0.034 & 0.027 & 1.000 \\
 Nominal yield, 10 years & 661 & 0.063 & 0.051 & 1.000 \\
 Real yield, 2 years & 332 & 0.378 & 0.202 & 0.974 \\
 Real yield, 5 years & 332 & 0.230 & 0.134 & 0.990 \\
+Real yield, 7 years & 332 & 0.189 & 0.109 & 0.993 \\
 Real yield, 10 years & 660 & 0.249 & 0.177 & 0.978 \\
 \bottomrule
 \end{tabular*}
 \begin{tablenotes}[flushleft]
 \footnotesize
-\item Notes: RMSE, MAE, and correlation are calculated over dates on which the corresponding observation is available. Missing survey observations are left missing and are not carried forward. Inflation and interest rates are in annualized percentage points.
+\item Notes: All yield maturities used in estimation are reported. RMSE and MAE compare observations with measurement functions evaluated at the updated filtered states; fitted real yields include the liquidity intercept. Correlation is the Pearson time-series correlation between each observed series and this fitted counterpart, using only dates when both are available. These are in-sample fits, not one-step-ahead forecasts. The CPI row reports trailing twelve-month inflation, as in the fit figure. Missing survey observations are left missing and are not carried forward. Inflation and interest rates are in annualized percentage points.
 \end{tablenotes}
 \end{threeparttable}
 \end{table}

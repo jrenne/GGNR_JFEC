@@ -56,6 +56,11 @@ fmt <- function(x) {
   }
   formatC(x, format = "f", digits = 4)
 }
+significance <- function(estimate, se) {
+  p <- 2 * pnorm(-abs(estimate / se))
+  stars <- if (p < 0.01) "***" else if (p < 0.05) "**" else if (p < 0.10) "*" else ""
+  if (nzchar(stars)) paste0("$^{", stars, "}$") else ""
+}
 lines <- c(
   "\\begin{table}[!htbp]", "\\centering",
   "\\caption{Parameter estimates and score-based standard errors}",
@@ -67,7 +72,7 @@ lines <- c(
 for (g in names(groups)) {
   lines <- c(lines, paste0("\\multicolumn{4}{l}{\\textit{", g, "}} \\\\"))
   for (i in groups[[g]]) lines <- c(lines, paste0(
-    labels[[inf$parameter[i]]], " & ", fmt(inf$estimate[i]), " & ",
+    labels[[inf$parameter[i]]], " & ", fmt(inf$estimate[i]), significance(inf$estimate[i], inf$hac_sandwich_se[i]), " & ",
     fmt(inf$opg_se[i]), " & ", fmt(inf$hac_sandwich_se[i]), " \\\\"
   ))
   if (g != tail(names(groups),1)) lines <- c(lines, "\\addlinespace")
@@ -83,16 +88,22 @@ lines <- c(
   paste0(
     "\\item Notes: Innovation and measurement-error standard deviations are expressed in annualized percentage points where indicated. ",
     uncertainty_note,
-    " The four unconditional moment restrictions determine $\\mu_r$, $\\mu_\\pi$, $\\sigma_m$, and $\\sigma_u$ analytically. The GFC liquidity adjustment is a common additive intercept in real yields during 2008--2009. Long-horizon CPI and Treasury-bill survey errors are fixed at 0.10 percentage point; real-yield errors are fixed at 0.10 percentage point in normal periods and 0.30 percentage point before 2004, during 2008--2009, and from March 2020 through February 2021."
+    " $^*$, $^{**}$, and $^{***}$ denote nominal two-sided normal-approximation significance at 10\\%, 5\\%, and 1\\%, using OPG--HAC standard errors and a zero null. These markers are not unit-root tests; for scale parameters, a zero null is on the boundary and the markers are descriptive. The four unconditional moment restrictions determine $\\mu_r$, $\\mu_\\pi$, $\\sigma_m$, and $\\sigma_u$ analytically. The GFC liquidity adjustment is a common additive intercept in real yields during 2008--2009. Long-horizon CPI and Treasury-bill survey errors are fixed at 0.10 percentage point; real-yield errors are fixed at 0.10 percentage point in normal periods and 0.30 percentage point before 2004, during 2008--2009, and from March 2020 through February 2021."
   ),
   "\\end{tablenotes}", "\\end{threeparttable}", "\\end{table}"
 )
 writeLines(lines, file.path(out, "table_parameters.tex"), useBytes=TRUE)
 
-keep <- fit$observable %in% c("headline_cpi_12m", "ptr", "cpi_forecast_1y", "cpi_forecast_10y", "tbill_forecast_1y", "tbill_forecast_10y", "nominal_yield_3m", "nominal_yield_24m", "nominal_yield_120m", "real_yield_24m", "real_yield_60m", "real_yield_120m")
-f <- fit[keep,]
-pretty <- c(headline_cpi_12m="Headline CPI inflation", ptr="PTR long-run inflation", cpi_forecast_1y="CPI forecast, 1 year", cpi_forecast_10y="CPI forecast, 10 years", tbill_forecast_1y="Treasury-bill forecast, 1 year", tbill_forecast_10y="Treasury-bill forecast, 10 years", nominal_yield_3m="Nominal yield, 3 months", nominal_yield_24m="Nominal yield, 2 years", nominal_yield_120m="Nominal yield, 10 years", real_yield_24m="Real yield, 2 years", real_yield_60m="Real yield, 5 years", real_yield_120m="Real yield, 10 years")
+keep <- fit$observable != "headline_cpi"
+f <- fit[keep, ]
+pretty <- c(headline_cpi_12m="Headline CPI inflation, 12 months", ptr="PTR long-run inflation", cpi_forecast_1y="CPI forecast, 1 year", cpi_forecast_10y="CPI forecast, 10 years", tbill_forecast_1y="Treasury-bill forecast, 1 year", tbill_forecast_10y="Treasury-bill forecast, 10 years")
+for (m in c(3, 12, 24, 36, 60, 84, 120)) {
+  maturity <- if (m == 3) "3 months" else paste(m / 12, if (m == 12) "year" else "years")
+  pretty[paste0("nominal_yield_", m, "m")] <- paste("Nominal yield,", maturity)
+}
+for (m in c(24, 60, 84, 120)) pretty[paste0("real_yield_", m, "m")] <- paste("Real yield,", m / 12, "years")
+
 fl <- c("\\begin{table}[!htbp]", "\\centering", "\\caption{Fit of macroeconomic expectations and yields}", "\\label{tab:fit}", "\\begin{threeparttable}", "\\begin{tabular*}{\\textwidth}{@{\\extracolsep{\\fill}}lrrrr}", "\\toprule", "Series & Observations & RMSE (pp) & MAE (pp) & Correlation \\\\", "\\midrule")
 for(i in seq_len(nrow(f))) fl <- c(fl, paste0(pretty[[f$observable[i]]], " & ", f$observations[i], " & ", sprintf("%.3f", f$rmse_annual_pp[i]), " & ", sprintf("%.3f", f$mae_annual_pp[i]), " & ", sprintf("%.3f", f$correlation[i]), " \\\\"))
-fl <- c(fl, "\\bottomrule", "\\end{tabular*}", "\\begin{tablenotes}[flushleft]", "\\footnotesize", "\\item Notes: RMSE, MAE, and correlation are calculated over dates on which the corresponding observation is available. Missing survey observations are left missing and are not carried forward. Inflation and interest rates are in annualized percentage points.", "\\end{tablenotes}", "\\end{threeparttable}", "\\end{table}")
+fl <- c(fl, "\\bottomrule", "\\end{tabular*}", "\\begin{tablenotes}[flushleft]", "\\footnotesize", "\\item Notes: All yield maturities used in estimation are reported. RMSE and MAE compare observations with measurement functions evaluated at the updated filtered states; fitted real yields include the liquidity intercept. Correlation is the Pearson time-series correlation between each observed series and this fitted counterpart, using only dates when both are available. These are in-sample fits, not one-step-ahead forecasts. The CPI row reports trailing twelve-month inflation, as in the fit figure. Missing survey observations are left missing and are not carried forward. Inflation and interest rates are in annualized percentage points.", "\\end{tablenotes}", "\\end{threeparttable}", "\\end{table}")
 writeLines(fl, file.path(out, "table_fit.tex"), useBytes=TRUE)

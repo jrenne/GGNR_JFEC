@@ -69,28 +69,19 @@ rolling_12m <- function(value) as.numeric(stats::filter(
 ))
 
 pdf(file.path(output_directory, "fig_macro_fit.pdf"),
-    width = 10, height = 7.6, useDingbats = FALSE)
-publication_par(mfrow = c(2, 2), mar = c(3.4, 4.8, 2.8, 0.8))
+    width = 10, height = 10.2, useDingbats = FALSE)
+publication_par(mfrow = c(3, 2), mar = c(3.4, 4.8, 2.8, 0.8))
 draw_fit(rolling_12m(data$macro[, 2]), rolling_12m(fit$macro[, 1]),
          "(a) Twelve-month CPI inflation", "topright")
 draw_fit(data$macro[, 4], fit$macro[, 2], "(b) Perceived inflation target")
-draw_fit(data$surv_infexp[, 2], fit$inflation_survey[, 2],
-         "(c) Ten-year CPI forecast")
-draw_fit(data$surv_tbexp[, 2], fit$tbill_survey[, 2],
-         "(d) Ten-year T-bill forecast")
-dev.off()
-
-pdf(file.path(output_directory, "fig_survey_fit.pdf"),
-    width = 10, height = 7.6, useDingbats = FALSE)
-publication_par(mfrow = c(2, 2), mar = c(3.4, 4.8, 2.8, 0.8))
 draw_fit(data$surv_infexp[, 1], fit$inflation_survey[, 1],
-         "(a) One-year CPI forecast", "topright")
+         "(c) One-year CPI forecast")
 draw_fit(data$surv_infexp[, 2], fit$inflation_survey[, 2],
-         "(b) Ten-year CPI forecast")
+         "(d) Ten-year CPI forecast")
 draw_fit(data$surv_tbexp[, 1], fit$tbill_survey[, 1],
-         "(c) One-year T-bill forecast")
+         "(e) One-year T-bill forecast")
 draw_fit(data$surv_tbexp[, 2], fit$tbill_survey[, 2],
-         "(d) Ten-year T-bill forecast")
+         "(f) Ten-year T-bill forecast")
 dev.off()
 
 pdf(file.path(output_directory, "fig_nominal_yield_fit.pdf"),
@@ -150,7 +141,7 @@ par(mfrow = c(3, 1), mar = c(2.6, 4.1, 2.3, 0.8))
 # Reset the automatic mfrow text shrinkage for a three-panel figure.
 par(cex = 1, cex.axis = 1.08, cex.lab = 1.10, cex.main = 1.14,
     font.main = 2, mgp = c(2.6, 0.75, 0), tcl = -0.3, las = 1)
-draw_state_panel("r_star", r_star, "(a) Real-rate trend", "Percent",
+draw_state_panel("r_star", r_star, expression(bold("(a) Real-rate trend ") * (r[t]^"*")), "Percent",
                  c(benchmark_hlw, benchmark_lw))
 # Connect the available quarterly estimates; missing monthly rows otherwise
 # break every line segment and make the comparison series disappear.
@@ -166,7 +157,7 @@ legend("bottomleft", c("Model", "95% interval", "HLW", "LW"), ncol = 2,
        pch = c(NA, 15, NA, NA), pt.cex = 1.5, cex = 1,
        bg = "white", box.col = "grey75")
 
-draw_state_panel("pi_star", pi_star, "(b) Inflation trend", "Percent",
+draw_state_panel("pi_star", pi_star, expression(bold("(b) Inflation trend ") * (pi[t]^"*")), "Percent",
                  1200 * data$macro[, 4])
 points(dates, 1200 * data$macro[, 4], col = colors["observed"],
        pch = 16, cex = 0.85)
@@ -175,7 +166,7 @@ legend("topright", c("Model", "95% interval", "PTR"), ncol = 3,
        pch = c(NA, 15, 16), pt.cex = c(1, 1.5, 1),
        lwd = c(3, NA, NA), cex = 1, bg = "white", box.col = "grey75")
 
-draw_state_panel("w", w, "(c) Price-of-risk state", "Normalized units")
+draw_state_panel("w", w, expression(bold("(c) Price-of-risk state ") * (w[t])), "Normalized units")
 abline(h = 0, col = "grey60", lwd = 1, lty = 3)
 lines(dates, w, lwd = 3)
 dev.off()
