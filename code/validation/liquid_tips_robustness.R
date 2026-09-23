@@ -3,7 +3,6 @@
 
 source("code/model/iekf.R")
 if (!requireNamespace("Rcpp", quietly = TRUE)) stop("Rcpp is required.")
-Rcpp::sourceCpp("code/model/pricing.cpp")
 Rcpp::sourceCpp("code/model/pricing_helpers.cpp")
 
 baseline_file <- Sys.getenv(
@@ -34,7 +33,7 @@ if (!isTRUE(robustness$liquid_tips_only)) {
   stop("The robustness estimate was not produced with liquid TIPS only.")
 }
 
-data_full <- load_true_release_data()
+data_full <- load_paper_data()
 short_rate <- load_observed_real_short_rate_inputs(data_full$dates)
 dates <- data_full$dates
 gfc <- dates >= as.Date("2008-01-01") & dates < as.Date("2010-01-01")

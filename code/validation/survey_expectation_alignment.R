@@ -2,7 +2,7 @@
 # against independent one-dimensional Gaussian quadrature and finite differences.
 source("code/model/iekf.R")
 estimate <- readRDS("estimates/baseline.rds")
-data <- load_true_release_data()
+data <- load_paper_data()
 short_rate <- load_observed_real_short_rate_inputs(data$dates)
 hfi_none <- list(standardized = rep(NaN, length(data$dates)),
                  observed = rep(FALSE, length(data$dates)))

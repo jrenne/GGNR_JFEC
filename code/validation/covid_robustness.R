@@ -2,7 +2,6 @@
 
 source("code/model/iekf.R")
 if (!requireNamespace("Rcpp", quietly = TRUE)) stop("Rcpp is required.")
-Rcpp::sourceCpp("code/model/pricing.cpp")
 Rcpp::sourceCpp("code/model/pricing_helpers.cpp")
 
 baseline_file <- Sys.getenv(
@@ -21,7 +20,7 @@ dir.create(output_directory, recursive = TRUE, showWarnings = FALSE)
 
 baseline <- readRDS(baseline_file)
 robustness <- readRDS(robustness_file)
-data_full <- load_true_release_data()
+data_full <- load_paper_data()
 short_full <- load_observed_real_short_rate_inputs(data_full$dates)
 data_omit <- data_full
 short_omit <- short_full

@@ -14,7 +14,7 @@ output_file <- Sys.getenv(
   file.path(premium_directory, "irp_fit_decomposition.png")
 )
 
-data <- load_true_release_data()
+data <- load_paper_data()
 diagnostics <- readRDS(file.path(diagnostic_directory, "diagnostics.rds"))
 premia <- read.csv(file.path(premium_directory, "risk_premia.csv"))
 

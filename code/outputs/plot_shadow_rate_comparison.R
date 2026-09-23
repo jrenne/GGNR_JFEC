@@ -1,4 +1,4 @@
-# Compare the retained shadow-rate estimate with two external model-based series.
+# Compare the shadow-rate estimate with two external model-based series.
 # The figure has no overall title because its interpretation is carried by the
 # self-contained LaTeX caption.
 

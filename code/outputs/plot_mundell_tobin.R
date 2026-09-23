@@ -21,7 +21,7 @@ diagnostics <- readRDS(file.path(diagnostic_directory, "diagnostics.rds"))
 fit <- diagnostics$fit
 obj <- fit$objects
 states <- t(fit$x_upd)
-dates <- load_true_release_data()$dates
+dates <- load_paper_data()$dates
 K <- obj$dims$K
 
 # Distribution of X_{t+h} conditional on the filtered state X_t.

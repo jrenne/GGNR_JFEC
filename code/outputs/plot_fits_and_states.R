@@ -3,7 +3,6 @@
 
 if (!requireNamespace("Rcpp", quietly = TRUE)) stop("Rcpp is required.")
 source("code/model/iekf.R")
-Rcpp::sourceCpp("code/model/pricing.cpp")
 Rcpp::sourceCpp("code/model/pricing_helpers.cpp")
 
 diagnostic_directory <- Sys.getenv(
@@ -16,7 +15,7 @@ output_directory <- Sys.getenv(
 )
 dir.create(output_directory, recursive = TRUE, showWarnings = FALSE)
 diagnostics <- readRDS(file.path(diagnostic_directory, "diagnostics.rds"))
-data <- load_true_release_data()
+data <- load_paper_data()
 dates <- data$dates
 fit <- diagnostics$fitted
 estimate_file <- Sys.getenv(

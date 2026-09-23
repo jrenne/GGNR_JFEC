@@ -1,12 +1,12 @@
 # Replication package for "The Shadow-Rate Model: Let's Make it Real"
 
 **Authors:** Adam Golinski, Sophie Guilloux-Nefussi, and Jean-Paul Renne  
-**Revision package:** September 2026
+**Package version:** September 2026
 
 ## Overview
 
 This repository contains the code and data used to reproduce every numerical
-table and figure in the paper and its Online Appendix. The retained empirical
+table and figure in the paper and its Online Appendix. The empirical
 specification is the six-state reduced-form model estimated with the fixed
 two-step iterated extended Kalman filter (IEKF), using the all-R monthly
 database from October 1968 through August 2026.
@@ -153,9 +153,8 @@ providers and are not relicensed by this package.
 
 ## Package status
 
-The retained model, all-R database construction, baseline and robustness
-estimations, inference calculations, validation exercises, and output builders
-are contained in this package. The original-submission Matlab code is retained
-separately in `GGNR_Codes/matlab/` and is not used by this package. The default `main.R` workflow has been run
-from the frozen data and archived numerical results to reproduce the complete
-set of manuscript and Online Appendix outputs.
+This package contains the model, database-construction routines, baseline and
+robustness estimations, inference calculations, validation exercises, and
+output builders. The default `main.R` workflow has been run using the frozen
+data and archived numerical results to reproduce the complete set of manuscript
+and Online Appendix outputs.

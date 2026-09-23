@@ -4,7 +4,6 @@
 
 source("code/model/iekf.R")
 if (!requireNamespace("Rcpp", quietly = TRUE)) stop("Rcpp is required.")
-Rcpp::sourceCpp("code/model/pricing.cpp")
 Rcpp::sourceCpp("code/model/pricing_helpers.cpp")
 
 input_file <- Sys.getenv(
@@ -60,7 +59,7 @@ if (!is.finite(p_template$lambda_pi_star_scale)) {
 if (risk_state_scaling == "w_only") p_template$lambda_r_star_scale <- 0
 if (liquid_tips_only) p_template$liquidity_spread_gfc <- 0
 
-data <- load_true_release_data()
+data <- load_paper_data()
 short_rate <- load_observed_real_short_rate_inputs(data$dates)
 liquid_real_yield_dates <- data$dates >= as.Date("2004-01-01") &
   !(data$dates >= as.Date("2008-01-01") &

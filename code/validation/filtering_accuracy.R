@@ -1,4 +1,4 @@
-# Monte Carlo assessment of EKF linearization in the retained six-state model.
+# Monte Carlo assessment of EKF linearization in the six-state model.
 #
 # The pricing implementation is held fixed: simulated observations and both
 # filters use the same approximate bond-pricing measurement function. Thus the
@@ -6,7 +6,6 @@
 
 source("code/model/iekf.R")
 if (!requireNamespace("Rcpp", quietly = TRUE)) stop("Rcpp is required.")
-Rcpp::sourceCpp("code/model/pricing.cpp")
 Rcpp::sourceCpp("code/model/pricing_helpers.cpp")
 
 estimate_file <- Sys.getenv(
@@ -45,7 +44,7 @@ p$sigma_real_yield <- 0.10 / 1200
 p$sigma_real_yield_liquidity <- 0.20 / 1200
 p$liquidity_spread_covid <- 0
 
-data <- load_true_release_data()
+data <- load_paper_data()
 short_rate <- load_observed_real_short_rate_inputs(data$dates)
 hfi_none <- list(
   standardized = rep(NaN, length(data$dates)),

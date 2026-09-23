@@ -1,4 +1,4 @@
-# State-dependent yield-response figures for the retained model.
+# State-dependent yield-response figures for the six-state model.
 
 source("code/model/iekf.R")
 

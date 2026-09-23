@@ -2,7 +2,6 @@
 
 source("code/model/iekf.R")
 if (!requireNamespace("Rcpp", quietly = TRUE)) stop("Rcpp is required.")
-Rcpp::sourceCpp("code/model/pricing.cpp")
 Rcpp::sourceCpp("code/model/pricing_helpers.cpp")
 
 estimate_file <- Sys.getenv(
@@ -21,7 +20,7 @@ filter_method <- if (is.null(result$filter_method)) "EKF" else
 iekf_trigger_probability <- if (is.null(result$iekf_trigger_probability)) 0 else
   result$iekf_trigger_probability
 iekf_steps <- if (is.null(result$iekf_steps)) 2L else result$iekf_steps
-data <- load_true_release_data()
+data <- load_paper_data()
 short_rate <- load_observed_real_short_rate_inputs(data$dates)
 hfi_none <- list(
   standardized = rep(NaN, length(data$dates)), observed = rep(FALSE, length(data$dates)),

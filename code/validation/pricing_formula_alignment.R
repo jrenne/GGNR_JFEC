@@ -101,7 +101,7 @@ results <- list(three_factor = check_pricing(
 ))
 
 estimate <- readRDS("estimates/baseline.rds")
-data <- load_true_release_data()
+data <- load_paper_data()
 short_rate <- load_observed_real_short_rate_inputs(data$dates)
 fit <- run_kf_reduced_hfi_no_output(data, estimate$parameters,
   no_hfi_data(data$dates), short_rate, filter_method = "IEKF",

@@ -2,7 +2,6 @@
 
 source("code/model/iekf.R")
 if (!requireNamespace("Rcpp", quietly = TRUE)) stop("Rcpp is required.")
-Rcpp::sourceCpp("code/model/pricing.cpp")
 Rcpp::sourceCpp("code/model/pricing_helpers.cpp")
 
 estimate_file <- Sys.getenv(
@@ -18,7 +17,7 @@ dir.create(output_directory, recursive = TRUE, showWarnings = FALSE)
 dir.create(figure_directory, recursive = TRUE, showWarnings = FALSE)
 
 estimate <- readRDS(estimate_file)
-data <- load_true_release_data()
+data <- load_paper_data()
 short_rate <- load_observed_real_short_rate_inputs(data$dates)
 hfi_none <- list(standardized = rep(NaN, length(data$dates)))
 fit <- run_kf_reduced_hfi_no_output(
