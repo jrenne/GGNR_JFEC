@@ -1,3 +1,4 @@
+source("code/outputs/graphics_helpers.R")
 # Probability of the shadow short rate hitting its lower bound, conditional on
 # the natural real rate and the inflation target. This is the six-state R-model
 # calculation reported in the paper.
@@ -102,14 +103,14 @@ png(file.path(output_directory, "iso_probability.png"),
 par(mar = c(5.0, 5.6, 1.0, 1.2), cex.axis = 1.18, cex.lab = 1.22,
     mgp = c(3.0, 0.9, 0), tcl = -0.35)
 draw_figure()
-dev.off()
+ggnr_dev_off()
 
-pdf(file.path(output_directory, "iso_probability.pdf"),
+ggnr_pdf(file.path(output_directory, "iso_probability.pdf"),
     width = 8.1, height = 5.9, useDingbats = FALSE)
 par(mar = c(5.0, 5.6, 1.0, 1.2), cex.axis = 1.18, cex.lab = 1.22,
     mgp = c(3.0, 0.9, 0), tcl = -0.35)
 draw_figure()
-dev.off()
+ggnr_dev_off()
 
 cat(sprintf(
   "Conditional shadow-rate standard deviation: %.3f annualized pp\n",

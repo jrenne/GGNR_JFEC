@@ -12,8 +12,12 @@ input_file <- Sys.getenv(
 )
 output_file <- Sys.getenv(
   "GGNR_OUTPUT_FILE",
-  "estimates/baseline.rds"
+  "estimates/reestimated.rds"
 )
+if (normalizePath(output_file, mustWork = FALSE) %in%
+    normalizePath(c("estimates/baseline.rds", "estimates/baseline_r2.rds"), mustWork = FALSE)) {
+  stop("Archived R1 and R2 estimates are read-only; choose a new output file.")
+}
 budget <- as.integer(Sys.getenv("GGNR_EVAL_BUDGET", "1500"))
 optimizer_method <- match.arg(
   Sys.getenv("GGNR_OPTIMIZER", "bobyqa"),

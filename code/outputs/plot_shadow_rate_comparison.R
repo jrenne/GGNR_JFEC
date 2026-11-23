@@ -1,10 +1,12 @@
+source("code/outputs/graphics_helpers.R")
 # Compare the shadow-rate estimate with two external model-based series.
 # The figure has no overall title because its interpretation is carried by the
 # self-contained LaTeX caption.
 
-state_file <- "outputs/figures/states_and_shadow_rate.csv"
+figure_directory <- Sys.getenv("GGNR_FIGURE_DIR", "outputs/figures")
+state_file <- file.path(figure_directory, "states_and_shadow_rate.csv")
 comparison_file <- "data/external/shadow_rate_comparisons.rds"
-output_file <- "outputs/figures/shadow_rate_benchmarks.pdf"
+output_file <- file.path(figure_directory, "shadow_rate_benchmarks.pdf")
 
 model <- read.csv(state_file)
 model$date <- as.Date(model$date)
@@ -50,7 +52,7 @@ draw_panel <- function(from, to, panel_title, show_legend = FALSE) {
   }
 }
 
-pdf(output_file, width = 10, height = 7.5, useDingbats = FALSE)
+ggnr_pdf(output_file, width = 10, height = 7.5, useDingbats = FALSE)
 par(
   mfrow = c(2, 1), mar = c(3.5, 4.8, 2.8, 0.8),
   cex.axis = 1.15, cex.lab = 1.20, cex.main = 1.18,
@@ -58,7 +60,7 @@ par(
 )
 draw_panel("1995-01-01", "2023-06-01", "(a) Common sample", TRUE)
 draw_panel("2008-01-01", "2022-03-01", "(b) Effective-lower-bound periods")
-dev.off()
+ggnr_dev_off()
 
 # Compact diagnostics used to keep the accompanying discussion quantitative.
 month_key <- function(x) format(as.Date(x), "%Y-%m")

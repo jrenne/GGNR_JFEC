@@ -100,7 +100,7 @@ results <- list(three_factor = check_pricing(
   diag(rho), rep(0, 3), V, x, c(0, 1, .5), 2 / 1200, 2 / 1200
 ))
 
-estimate <- readRDS("estimates/baseline.rds")
+estimate <- readRDS(Sys.getenv("GGNR_START_FILE", "estimates/baseline_r2.rds"))
 data <- load_paper_data()
 short_rate <- load_observed_real_short_rate_inputs(data$dates)
 fit <- run_kf_reduced_hfi_no_output(data, estimate$parameters,
@@ -147,5 +147,5 @@ for (h in c(60L, 120L)) {
     max(abs(bands[[paste0("real_", suffix, "_estimate")]] - real)) < 1e-9,
     max(abs(bands[[paste0("inflation_", suffix, "_estimate")]] - inflation)) < 1e-9)
 }
-message("Reported premium paths and Hamilton point estimates agree with the pricing formulas.")
+message("Reported premium paths and local uncertainty point estimates agree with the pricing formulas.")
 write.csv(results, "outputs/diagnostics/pricing/formula_alignment_checks.csv")

@@ -1,3 +1,4 @@
+source("code/outputs/graphics_helpers.R")
 # Robustness check that treats every observation in calendar 2020 as missing.
 
 source("code/model/iekf.R")
@@ -6,7 +7,7 @@ Rcpp::sourceCpp("code/model/pricing_helpers.cpp")
 
 baseline_file <- Sys.getenv(
   "GGNR_BASELINE_FILE",
-  "estimates/baseline.rds"
+  Sys.getenv("GGNR_START_FILE", "estimates/baseline_r2.rds")
 )
 robustness_file <- Sys.getenv(
   "GGNR_ROBUSTNESS_FILE",
@@ -157,11 +158,13 @@ draw_figure <- function() {
 png(file.path(output_directory, "rstar_omit2020.png"),
     width = 1800, height = 1250, res = 180)
 draw_figure()
-dev.off()
-pdf(file.path(output_directory, "rstar_omit2020.pdf"),
+ggnr_dev_off()
+figure_directory <- Sys.getenv("GGNR_FIGURE_DIR", "outputs/figures")
+dir.create(figure_directory, recursive = TRUE, showWarnings = FALSE)
+ggnr_pdf(file.path(figure_directory, "rstar_omit2020.pdf"),
     width = 10, height = 6.9, useDingbats = FALSE)
 draw_figure()
-dev.off()
+ggnr_dev_off()
 
 cat("Omitted-2020 robustness summary:\n")
 print(summary)

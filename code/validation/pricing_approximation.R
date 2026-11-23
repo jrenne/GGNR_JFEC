@@ -1,3 +1,4 @@
+source("code/outputs/graphics_helpers.R")
 # Pricing-approximation validation in a transparent, stylized three-factor model.
 # The current state is observed. This script deliberately contains no filter.
 suppressPackageStartupMessages({
@@ -269,8 +270,9 @@ p <- ggplot(baseline, aes(shadow_rate, error_bp, shape = maturity)) +
         legend.text = element_text(size = 11.5), axis.title = element_text(size = 12.5),
         axis.text = element_text(size = 11.5),
         plot.margin = margin(7, 7, 7, 18))
-ggsave(file.path(figure_dir, "pricing_approximation_errors.pdf"), p,
-       width = 7.1, height = 3.55, device = "pdf")
+ggnr_pdf(file.path(figure_dir, "pricing_approximation_errors.pdf"), width = 7.1, height = 3.55)
+print(p)
+ggnr_dev_off()
 ggsave(file.path(figure_dir, "pricing_approximation_errors.png"), p,
        width = 7.1, height = 3.55, dpi = 220)
 

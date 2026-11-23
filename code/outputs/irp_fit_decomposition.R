@@ -1,3 +1,4 @@
+source("code/outputs/graphics_helpers.R")
 # Exact decomposition of the survey-implied 10-year inflation-risk-premium fit.
 
 source("code/data/load_data.R")
@@ -91,7 +92,7 @@ legend("bottomleft",
        col = c("#222222", "#009E73", "#D55E00", "#0072B2"),
        lty = 1, lwd = c(1.5, 1, 1, 1), cex = 0.8,
        bg = adjustcolor("white", alpha.f = 0.85))
-dev.off()
+ggnr_dev_off()
 
 rmse <- function(x, mask = observed) sqrt(mean(x[mask]^2, na.rm = TRUE))
 average <- function(x, mask = observed) mean(x[mask], na.rm = TRUE)

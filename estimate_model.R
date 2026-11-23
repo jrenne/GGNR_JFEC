@@ -1,7 +1,7 @@
 # Full re-estimation of the baseline model
 #
 # Open this file in RStudio and click Source. The resulting estimate is saved
-# as estimates/baseline.rds. The successive rounds provide a transparent
+# as estimates/reestimated.rds. The successive rounds provide a transparent
 # cross-optimizer check and each round starts from the best preceding estimate.
 
 estimation_rounds <- data.frame(
@@ -12,8 +12,8 @@ estimation_rounds <- data.frame(
 for (round in seq_len(nrow(estimation_rounds))) {
   Sys.setenv(
     GGNR_START_FILE = if (round == 1L)
-      "estimates/start_values.rds" else "estimates/baseline.rds",
-    GGNR_OUTPUT_FILE = "estimates/baseline.rds",
+      "estimates/start_values.rds" else "estimates/reestimated.rds",
+    GGNR_OUTPUT_FILE = "estimates/reestimated.rds",
     GGNR_EVAL_BUDGET = as.character(estimation_rounds$evaluations[round]),
     GGNR_OPTIMIZER = estimation_rounds$optimizer[round]
   )

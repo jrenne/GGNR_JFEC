@@ -1,3 +1,4 @@
+source("code/validation/cache_provenance.R")
 # Monte Carlo assessment of EKF linearization in the six-state model.
 #
 # The pricing implementation is held fixed: simulated observations and both
@@ -10,7 +11,7 @@ Rcpp::sourceCpp("code/model/pricing_helpers.cpp")
 
 estimate_file <- Sys.getenv(
   "GGNR_FILTER_ESTIMATE",
-  "estimates/baseline.rds"
+  Sys.getenv("GGNR_START_FILE", "estimates/baseline_r2.rds")
 )
 output_directory <- Sys.getenv(
   "GGNR_FILTER_OUTPUT",
@@ -693,7 +694,7 @@ write.csv(observed_iekf_state_comparison,
 write.csv(observed_iekf_premium_comparison,
           file.path(output_directory, "observed_iterated_premium_comparison.csv"),
           row.names = FALSE)
-saveRDS(list(
+saveRDS(list(provenance = ggnr_cache_provenance(estimate_file),
   diagnostics = diagnostics, summary = summary_table,
   comparison = comparison, iekf_comparison = iekf_comparison,
   replication_metrics = replication_summary,

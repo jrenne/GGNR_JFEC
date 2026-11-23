@@ -1,3 +1,4 @@
+source("code/outputs/graphics_helpers.R")
 # Robustness check using real-yield observations only in ordinary-liquidity
 # post-2004 months. All other observables remain available throughout.
 
@@ -7,7 +8,7 @@ Rcpp::sourceCpp("code/model/pricing_helpers.cpp")
 
 baseline_file <- Sys.getenv(
   "GGNR_BASELINE_FILE",
-  "estimates/baseline.rds"
+  Sys.getenv("GGNR_START_FILE", "estimates/baseline_r2.rds")
 )
 robustness_file <- Sys.getenv(
   "GGNR_ROBUSTNESS_FILE",
@@ -170,7 +171,7 @@ table_lines <- c(
   "\\caption{Robustness to illiquid real-yield observations}",
   "\\label{tab:liquid_tips_robustness}",
   "\\begin{threeparttable}", "\\small",
-  "\\begin{tabular}{lrrrr}", "\\toprule",
+  "\\begin{tabular*}{\\textwidth}{@{\\extracolsep{\\fill}}lrrrr}", "\\toprule",
   " & \\multicolumn{2}{c}{Ordinary post-2004 months} & \\multicolumn{2}{c}{Omitted GFC/COVID months} \\\\",
   "\\cmidrule(lr){2-3} \\cmidrule(lr){4-5}",
   " & Mean diff. & Mean abs. diff. & Mean diff. & Mean abs. diff. \\\\",
@@ -186,7 +187,7 @@ for (object_name in names(labels)) {
   ))
 }
 table_lines <- c(
-  table_lines, "\\bottomrule", "\\end{tabular}",
+  table_lines, "\\bottomrule", "\\end{tabular*}",
   "\\begin{tablenotes}[flushleft]", "\\footnotesize",
   paste0(
     "\\item Notes: Entries are annualized percentage points and compare the ",
@@ -272,10 +273,10 @@ draw_sensitivity_figure <- function() {
   )
 }
 
-pdf(file.path(figure_directory, "pre2004_real_yield_sensitivity.pdf"),
+ggnr_pdf(file.path(figure_directory, "pre2004_real_yield_sensitivity.pdf"),
     width = 10, height = 10.0, useDingbats = FALSE)
 draw_sensitivity_figure()
-dev.off()
+ggnr_dev_off()
 
 cat("Liquid-TIPS robustness summary:\n")
 print(summary)

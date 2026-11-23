@@ -1,0 +1,3 @@
+PASS: 500 reference + 500 sensitivity; all 600 prior replications reused exactly; no missing samples.
+PASS: seeds, designs, independent interval indicators, denominators, bias/SD/RMSE/SE/coverage and Monte Carlo errors.
+PASS: three archived optimizer retries, no unresolved failures; original simulations and empirical baseline unchanged.

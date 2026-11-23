@@ -2,7 +2,8 @@
 
 inference_file <- Sys.getenv(
   "GGNR_HAC_FILE",
-  "outputs/diagnostics/inference/hac_sandwich_covariance.rds"
+  file.path(Sys.getenv("GGNR_INFERENCE_DIR", "outputs/diagnostics/inference"),
+            "hac_sandwich_covariance.rds")
 )
 output_directory <- Sys.getenv("GGNR_RISK_TEST_DIR", dirname(inference_file))
 inference <- readRDS(inference_file)

@@ -1,0 +1,12 @@
+Published designs: reference_15 and higher_zlb_50, 500 samples each.
+Reference replication IDs 1:500; sensitivity IDs 51:550. Seed = 20310100 + ID.
+IDs shared across designs use common innovations; within each design samples are independent.
+The nominal-yield/inflation measurement magnitudes are frozen at the submitted R1 values.
+The 15% design was designated before inspecting exploratory coverage, motivated by the
+roughly 13% lower-bound frequency in the full-model filtering simulation. Confirmation
+seeds are distinct from the initial factorial exploration. Expanding the sample counts
+retained all completed reference/sensitivity samples, not a selected subset.
+The three deterministic optimizer-limit retries concern higher_zlb_50 IDs 139, 165 and 191.
+Their initial attempts and completed retries are supplied. Published results exclude no sample.
+Case labels have been standardized to reference_15 / higher_zlb_50; original numerical
+estimates, seeds, interval indicators and standard errors are retained.

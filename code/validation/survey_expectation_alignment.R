@@ -1,7 +1,7 @@
 # Source from the project root. Check the Treasury-bill survey expectation
 # against independent one-dimensional Gaussian quadrature and finite differences.
 source("code/model/iekf.R")
-estimate <- readRDS("estimates/baseline.rds")
+estimate <- readRDS(Sys.getenv("GGNR_START_FILE", "estimates/baseline_r2.rds"))
 data <- load_paper_data()
 short_rate <- load_observed_real_short_rate_inputs(data$dates)
 hfi_none <- list(standardized = rep(NaN, length(data$dates)),

@@ -1,3 +1,4 @@
+source("code/outputs/graphics_helpers.R")
 # State-dependent yield-response figures for the six-state model.
 
 source("code/model/iekf.R")
@@ -193,11 +194,11 @@ for (name in names(experiments)) {
   png(file.path(output_directory, paste0("irf_yields_", name, ".png")),
       width = 1800, height = 850, res = 180)
   draw_yield_irf(results, experiment)
-  dev.off()
-  pdf(file.path(output_directory, paste0("irf_yields_", name, ".pdf")),
+  ggnr_dev_off()
+  ggnr_pdf(file.path(output_directory, paste0("irf_yields_", name, ".pdf")),
       width = 10, height = 4.7, useDingbats = FALSE)
   draw_yield_irf(results, experiment)
-  dev.off()
+  ggnr_dev_off()
 }
 
 # Macro responses to a 25 bp innovation in the shadow rate.
@@ -235,11 +236,11 @@ draw_macro_irf <- function() {
 png(file.path(output_directory, "irf_macro_policy.png"),
     width = 1800, height = 720, res = 180)
 draw_macro_irf()
-dev.off()
-pdf(file.path(output_directory, "irf_macro_policy.pdf"),
+ggnr_dev_off()
+ggnr_pdf(file.path(output_directory, "irf_macro_policy.pdf"),
     width = 10, height = 4, useDingbats = FALSE)
 draw_macro_irf()
-dev.off()
+ggnr_dev_off()
 
 saveRDS(
   list(macro = macro_irf, yield_experiments = all_yield_results,

@@ -13,7 +13,7 @@ actual release months; other months contain `NaN`. The sample runs from October
 The object contains headline inflation, the FRB/US perceived inflation target,
 one- and ten-year SPF inflation and Treasury-bill forecasts, nominal Treasury
 yields, real Treasury yields, their maturities and forecast horizons, and the
-effective federal funds rate used to impose the short-real-rate moments.
+effective federal funds rate used for the nominal short-rate moment restrictions.
 
 ## Optional update
 
@@ -30,7 +30,9 @@ available.
 
 Fresh downloads can differ from the paper vintage because source agencies
 revise historical data. Thus, the updated file is intended for extending the
-analysis, whereas the frozen file is intended for exact replication.
+analysis, whereas the frozen file is intended for exact replication. Creating
+the updated file does not change the default data input; using it requires
+explicitly changing the input and re-estimating the model.
 
 ## Sources
 

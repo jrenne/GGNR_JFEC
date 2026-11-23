@@ -1,3 +1,4 @@
+source("code/outputs/graphics_helpers.R")
 # Risk-premium diagnostics for the preferred reduced-form estimate.
 
 source("code/model/iekf.R")
@@ -6,7 +7,7 @@ Rcpp::sourceCpp("code/model/pricing_helpers.cpp")
 
 estimate_file <- Sys.getenv(
   "GGNR_START_FILE",
-  "estimates/baseline.rds"
+  "estimates/baseline_r2.rds"
 )
 output_directory <- Sys.getenv(
   "GGNR_PREMIA_DIR",
@@ -149,9 +150,9 @@ draw_panel(
   premium_data$inflation_rp_10y_dkw, premium_data$inflation_rp_10y_survey,
   "(c) Inflation risk premium", "DKW 10y"
 )
-dev.off()
+ggnr_dev_off()
 
-pdf(file.path(figure_directory, "risk_premia.pdf"), width = 10, height = 10)
+ggnr_pdf(file.path(figure_directory, "risk_premia.pdf"), width = 10, height = 10)
 par(mfrow = c(3, 1), mar = c(3.6, 5.0, 3.0, 1),
     cex.axis = 1.15, cex.lab = 1.20, cex.main = 1.35, font.main = 2,
     mgp = c(2.8, 0.85, 0), tcl = -0.35)
@@ -171,7 +172,7 @@ draw_panel(
   premium_data$inflation_rp_10y_dkw, premium_data$inflation_rp_10y_survey,
   "(c) Inflation risk premium", "DKW 10y"
 )
-dev.off()
+ggnr_dev_off()
 
 summary_table <- data.frame(
   series = names(premium_data)[-1],

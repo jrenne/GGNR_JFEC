@@ -3,6 +3,10 @@
 # Open this file in RStudio and click Source. Each specification starts from
 # the baseline estimate, then uses a short local refinement of its own result.
 
+saved_environment_names <- c("GGNR_START_FILE", "GGNR_EVAL_BUDGET", "GGNR_OUTPUT_FILE",
+  "GGNR_OPTIMIZER", "GGNR_OMIT_START", "GGNR_OMIT_END", "GGNR_LIQUID_TIPS_ONLY")
+saved_environment <- Sys.getenv(saved_environment_names, unset = NA_character_)
+baseline_input <- Sys.getenv("GGNR_START_FILE", "estimates/baseline_r2.rds")
 estimate_robustness <- function(output_file, omit_2020, liquid_tips_only) {
   rounds <- data.frame(
     optimizer = c("bobyqa", "nlminb", "bobyqa"),
@@ -10,7 +14,7 @@ estimate_robustness <- function(output_file, omit_2020, liquid_tips_only) {
   )
   for (round in seq_len(nrow(rounds))) {
     Sys.setenv(
-      GGNR_START_FILE = if (round == 1L) "estimates/baseline.rds" else output_file,
+      GGNR_START_FILE = if (round == 1L) baseline_input else output_file,
       GGNR_OUTPUT_FILE = output_file,
       GGNR_EVAL_BUDGET = as.character(rounds$evaluations[round]),
       GGNR_OPTIMIZER = rounds$optimizer[round],
@@ -31,8 +35,6 @@ estimate_robustness <- function(output_file, omit_2020, liquid_tips_only) {
 estimate_robustness("estimates/omit_2020.rds", TRUE, FALSE)
 estimate_robustness("estimates/liquid_tips_only.rds", FALSE, TRUE)
 
-Sys.unsetenv(c(
-  "GGNR_START_FILE", "GGNR_EVAL_BUDGET", "GGNR_OUTPUT_FILE",
-  "GGNR_OPTIMIZER", "GGNR_OMIT_START", "GGNR_OMIT_END",
-  "GGNR_LIQUID_TIPS_ONLY"
-))
+Sys.unsetenv(saved_environment_names)
+restore <- !is.na(saved_environment)
+if (any(restore)) do.call(Sys.setenv, as.list(saved_environment[restore]))

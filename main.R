@@ -1,62 +1,66 @@
-# Replication driver
-#
-# Open GGNR_JFEC.Rproj, edit the switches below if desired, and click Source.
-
+# Open GGNR_JFEC.Rproj and Source this file. No downloads are needed.
+# Default: regenerate every published table/figure from the archived R2 estimate
+# and checked numerical caches. Set individual switches for fresh calculations.
 run_estimation <- FALSE
+run_polishing <- FALSE
 run_robustness_estimation <- FALSE
 run_inference <- FALSE
 run_pricing_exercise <- FALSE
 run_filtering_exercise <- FALSE
 run_uncertainty_exercise <- FALSE
+run_parameter_exercise <- FALSE
+run_mundell_exercise <- FALSE
+run_checks <- TRUE
 
-# A new baseline estimate changes every estimate-dependent downstream result.
+replication_started <- proc.time()["elapsed"]
+ggnr_run_stage <- function(file) {
+  message("Running ", file)
+  source(file, local = globalenv())
+}
 if (run_estimation) {
-  run_robustness_estimation <- TRUE
-  run_inference <- TRUE
-  run_filtering_exercise <- TRUE
-  run_uncertainty_exercise <- TRUE
+  ggnr_run_stage("estimate_model.R")
+  Sys.setenv(GGNR_START_FILE = "estimates/reestimated.rds")
+  run_inference <- run_filtering_exercise <- run_uncertainty_exercise <- TRUE
+  run_robustness_estimation <- run_mundell_exercise <- TRUE
 }
-
-if (run_estimation) source("estimate_model.R")
-if (run_robustness_estimation) source("estimate_robustness.R")
-
-# Baseline filtered states and fit diagnostics are inexpensive and are always
-# regenerated from the archived estimate and frozen paper data.
-source("code/outputs/build_diagnostics.R")
-
-if (run_inference) {
-  source("code/inference/sandwich_covariance.R")
-  source("code/inference/hac_sandwich_covariance.R")
-  source("code/inference/joint_price_risk_tests.R")
+if (run_polishing) {
+  ggnr_run_stage("polish_model.R")
+  Sys.setenv(GGNR_START_FILE = Sys.getenv("GGNR_POLISH_OUTPUT", "estimates/polished.rds"))
+  run_inference <- run_filtering_exercise <- run_uncertainty_exercise <- TRUE
+  run_mundell_exercise <- TRUE
 }
-source("code/validation/pricing_approximation.R")
-if (run_filtering_exercise) source("code/validation/filtering_accuracy.R")
-if (run_uncertainty_exercise) source("code/inference/hamilton_uncertainty.R")
-
-# Every figure and table is rebuilt from the estimates and numerical results.
-source("code/outputs/plot_fits_and_states.R")
-source("code/outputs/plot_risk_premia.R")
-source("code/outputs/plot_iso_probability.R")
-source("code/outputs/plot_mundell_tobin.R")
-source("code/outputs/plot_yield_responses.R")
-source("code/outputs/plot_shadow_rate_comparison.R")
-source("code/outputs/irp_fit_decomposition.R")
-
-if (file.exists("estimates/omit_2020.rds")) {
-  source("code/validation/covid_robustness.R")
+if (run_robustness_estimation) ggnr_run_stage("estimate_robustness.R")
+# estimate_robustness restores the incoming environment, including the selected estimate.
+if (run_inference) ggnr_run_stage("code/inference/hessian_sandwich.R")
+if (run_filtering_exercise) ggnr_run_stage("code/validation/filtering_accuracy.R")
+if (run_uncertainty_exercise) ggnr_run_stage("code/inference/delta_uncertainty.R")
+if (run_parameter_exercise) ggnr_run_stage("code/validation/parameter_coverage.R")
+ggnr_run_stage("code/validation/validate_cached_results.R")
+ggnr_run_stage("code/outputs/build_diagnostics.R")
+ggnr_run_stage("code/inference/joint_price_risk_tests.R")
+ggnr_run_stage("code/validation/pricing_approximation.R")
+# Build fitted states before the comparison figure, which reads that fresh CSV.
+ggnr_run_stage("code/outputs/plot_fits_and_states.R")
+ggnr_run_stage("code/outputs/plot_risk_premia.R")
+ggnr_run_stage("code/outputs/plot_iso_probability.R")
+options(ggnr.recompute_mundell = run_mundell_exercise)
+ggnr_run_stage("code/outputs/plot_mundell_tobin.R")
+ggnr_run_stage("code/outputs/plot_yield_responses.R")
+ggnr_run_stage("code/outputs/plot_shadow_rate_comparison.R")
+ggnr_run_stage("code/outputs/irp_fit_decomposition.R")
+ggnr_run_stage("code/validation/covid_robustness.R")
+ggnr_run_stage("code/validation/liquid_tips_robustness.R")
+ggnr_run_stage("code/outputs/make_tables.R")
+ggnr_run_stage("code/outputs/make_filtering_table.R")
+ggnr_run_stage("code/outputs/make_parameter_coverage_tables.R")
+ggnr_run_stage("code/outputs/plot_uncertainty.R")
+if (run_checks) {
+  ggnr_run_stage("code/validation/delta_alignment.R")
+  ggnr_run_stage("code/validation/covariance_alignment.R")
+  ggnr_run_stage("code/validation/parameter_coverage_alignment.R")
+  ggnr_run_stage("code/validation/pricing_formula_alignment.R")
+  ggnr_run_stage("code/validation/survey_expectation_alignment.R")
+  ggnr_run_stage("code/validation/pricing_timing_alignment.R")
 }
-if (file.exists("estimates/liquid_tips_only.rds")) {
-  source("code/validation/liquid_tips_robustness.R")
-}
-
-if (file.exists("outputs/diagnostics/inference/parameter_inference.csv")) {
-  source("code/outputs/make_tables.R")
-}
-if (file.exists("outputs/diagnostics/filtering/filtering_summary.csv")) {
-  source("code/outputs/make_filtering_table.R")
-}
-if (file.exists("outputs/diagnostics/uncertainty/state_bands.csv")) {
-  source("code/outputs/plot_uncertainty.R")
-}
-
-message("Replication outputs are available in outputs/.")
+message(sprintf("Replication completed in %.1f seconds; results are in outputs/.",
+                proc.time()["elapsed"] - replication_started))

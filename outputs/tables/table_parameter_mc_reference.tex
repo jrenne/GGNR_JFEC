@@ -1,0 +1,23 @@
+\begin{table}[!htbp]
+\centering
+\caption{Finite-sample parameter estimation: reference design}
+\label{oa:tab_parameter_mc_reference}
+\begin{threeparttable}
+\small
+\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lrrrrr}
+\toprule
+Parameter & Bias & Empirical SD & RMSE & Mean SE & Coverage (\%) \\
+\midrule
+$\operatorname{logit}\rho_r$ & 0.0132 & 0.0190 & 0.0231 & 0.0182 & 89.0 \\
+$\operatorname{logit}\rho_\pi$ & 0.0114 & 0.0396 & 0.0411 & 0.0388 & 93.8 \\
+$\log\sigma_r$ & -0.0200 & 0.0284 & 0.0347 & 0.0272 & 89.8 \\
+$\log\sigma_\pi$ & -0.0102 & 0.0522 & 0.0531 & 0.0483 & 92.0 \\
+$\log\sigma_{me}$ & 0.0022 & 0.0141 & 0.0143 & 0.0144 & 94.0 \\
+\bottomrule
+\end{tabular*}
+\begin{tablenotes}[flushleft]
+\footnotesize
+\item Notes: 500 replications of 695 months. All diagnostics are in logit/log estimation coordinates. Mean SE and coverage use the local Hessian--HAC sandwich with 12 Bartlett lags. Coverage is for nominal 95\% Wald intervals; monotone transformation to economic coordinates preserves it. $\sigma_{me}$ is the common measurement-error scale, with generating value 0.0663 annualized percentage point; relative errors are fixed as described in the text. All 500 intervals are computable for each parameter; no sample is omitted.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}

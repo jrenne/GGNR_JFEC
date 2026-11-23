@@ -135,7 +135,7 @@ run_kf_reduced_hfi_no_output <- function(
     data = load_paper_data(), p = reduced_hfi_no_output_defaults(),
     hfi = no_hfi_data(data$dates), observed_short_rate = NULL,
     filter_method = c("EKF", "IEKF"), iekf_trigger_probability = 0,
-    iekf_steps = 2L) {
+    iekf_steps = 2L, nominal_branches = NULL, record_branches = FALSE) {
   filter_method <- match.arg(filter_method)
   iekf_steps <- as.integer(iekf_steps)
   if (!is.finite(iekf_trigger_probability) ||
@@ -186,6 +186,12 @@ run_kf_reduced_hfi_no_output <- function(
   x_pred[1, ] <- mean_state
   fval_t <- numeric(T)
   iterated <- logical(T)
+  branch_index <- 0L
+  branch_trace <- logical()
+  if (!is.null(nominal_branches) &&
+      (anyNA(nominal_branches) || !all(nominal_branches %in% c(0, 1)))) {
+    stop("Nominal branches must contain only zeroes and ones.")
+  }
 
   measurement_system <- function(state, tt, P_prior) {
     yf <- y_fitting_r(
@@ -194,6 +200,28 @@ run_kf_reduced_hfi_no_output <- function(
       obj$coefs_q$A_X_for_pi, obj$coefs_q$B_X_pi, obj$Sigma2_X,
       obj$coefs_q$B_X_cum, obj$coefs_q$B_X_cum_pi
     )
+    # Only the known current nominal rate has a max kink. For local parameter
+    # derivatives, extend its selected affine branch through the evaluation
+    # point; future Gaussian forward terms retain their original formula.
+    if (record_branches || !is.null(nominal_branches)) {
+      branch_index <<- branch_index + 1L
+      shadow <- sum(as.numeric(obj$loadings$shadow_rate) * state)
+      actual <- as.integer(shadow > p$r_lb)
+      if (record_branches) branch_trace[branch_index] <<- as.logical(actual)
+      if (!is.null(nominal_branches)) {
+        if (branch_index > length(nominal_branches)) stop("Branch trace is too short.")
+        desired <- as.integer(nominal_branches[branch_index])
+        maturity <- seq_len(ncol(yf$yfit_all_n))
+        correction <- (p$r_lb + desired * (shadow - p$r_lb) -
+                         max(shadow, p$r_lb)) / maturity
+        yf$yfit_all_n <- sweep(yf$yfit_all_n, 2, correction, "+")
+        yf$yfit_all_r <- sweep(yf$yfit_all_r, 2, correction, "+")
+        gradient_correction <- outer(1 / maturity,
+          (desired - actual) * obj$coefs_q$B_X_for[, 1])
+        yf$JJ_n <- yf$JJ_n + gradient_correction
+        yf$JJ_r <- yf$JJ_r + gradient_correction
+      }
+    }
     y_pred_n <- yf$yfit_all_n[1, data$mats_n]
     y_pred_r <- yf$yfit_all_r[1, data$mats_r] +
       obj$real_yield_offset_t[tt]
@@ -310,12 +338,15 @@ run_kf_reduced_hfi_no_output <- function(
     P_upd <- (P_upd + t(P_upd)) / 2
     P_upd_all[, , tt] <- P_upd
   }
+  if (!is.null(nominal_branches) && branch_index != length(nominal_branches)) {
+    stop("The derivative evaluation did not consume the full branch trace.")
+  }
   list(
     fval = sum(fval_t), fval_t = fval_t,
     x_pred = x_pred, x_upd = x_upd, P_pred = P_pred_all,
     P_upd = P_upd_all, objects = obj,
     hfi_observation_count = sum(is.finite(hfi$standardized)),
     filter_method = filter_method, iterated = iterated,
-    iteration_fraction = mean(iterated)
+    iteration_fraction = mean(iterated), nominal_branches = branch_trace
   )
 }

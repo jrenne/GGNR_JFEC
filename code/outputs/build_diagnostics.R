@@ -1,3 +1,4 @@
+source("code/outputs/graphics_helpers.R")
 # Observable-fit diagnostics for the preferred six-state reduced-form model.
 
 source("code/model/iekf.R")
@@ -6,7 +7,7 @@ Rcpp::sourceCpp("code/model/pricing_helpers.cpp")
 
 estimate_file <- Sys.getenv(
   "GGNR_START_FILE",
-  "estimates/baseline.rds"
+  "estimates/baseline_r2.rds"
 )
 output_directory <- Sys.getenv(
   "GGNR_DIAGNOSTIC_DIR",
@@ -133,7 +134,7 @@ for (name in c("headline_cpi_12m", "ptr", "cpi_forecast_1y",
                "cpi_forecast_10y", "tbill_forecast_1y", "tbill_forecast_10y")) {
   plot_panel(items[[name]], gsub("_", " ", name))
 }
-dev.off()
+ggnr_dev_off()
 
 png(file.path(output_directory, "filtered_states.png"),
     width = 1800, height = 1500, res = 180)
@@ -146,7 +147,7 @@ for (j in seq_len(ncol(fit$x_upd))) {
        col = "#0072B2", lwd = 1, xlab = "", ylab = state_unit,
        main = gsub("_", " ", colnames(fit$x_upd)[j]))
 }
-dev.off()
+ggnr_dev_off()
 
 png(file.path(output_directory, "yield_fits.png"),
     width = 1800, height = 1500, res = 180)
@@ -155,7 +156,7 @@ for (name in c("nominal_yield_3m", "nominal_yield_24m", "nominal_yield_120m",
                "real_yield_24m", "real_yield_60m", "real_yield_120m")) {
   plot_panel(items[[name]], gsub("_", " ", name))
 }
-dev.off()
+ggnr_dev_off()
 
 saveRDS(list(fit = fit, fitted = list(
   macro = macro_fit, core = core_fit, inflation_survey = inflation_survey_fit,

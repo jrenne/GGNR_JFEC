@@ -1,7 +1,8 @@
-# Diagnostic plots for Hamilton-style filtering-plus-parameter uncertainty.
+source("code/outputs/graphics_helpers.R")
+# Diagnostic plots for local delta-method filtering-plus-parameter uncertainty.
 
 input_directory <- Sys.getenv(
-  "GGNR_HAMILTON_DIR",
+  "GGNR_UNCERTAINTY_DIR",
   "outputs/diagnostics/uncertainty"
 )
 output_directory <- Sys.getenv("GGNR_FIGURE_DIR", "outputs/figures")
@@ -39,7 +40,8 @@ draw_state_figure <- function() {
   legend("topright", c("Estimate", "68% interval", "95% interval"),
          lty = c(1, NA, NA), lwd = c(2.5, NA, NA),
          pch = c(NA, 15, 15), pt.cex = c(NA, 2.0, 2.0),
-         col = c("black", "grey65", "grey85"), bty = "n", cex = 1.05)
+         col = c("black", "grey65", "grey85"), bty = "o", box.col = "white",
+         bg = "white", ncol = 3, cex = 1.05)
   draw_band(states, "pi_star",
             expression(paste("(b) Inflation trend ", pi*"*")), zero = TRUE)
 }
@@ -53,25 +55,26 @@ draw_premium_figure <- function() {
   legend("topright", c("Estimate", "68% interval", "95% interval"),
          lty = c(1, NA, NA), lwd = c(2.5, NA, NA),
          pch = c(NA, 15, 15), pt.cex = c(NA, 2.0, 2.0),
-         col = c("black", "grey65", "grey85"), bty = "n", cex = 1.05)
+         col = c("black", "grey65", "grey85"), bty = "o", box.col = "white",
+         bg = "white", ncol = 3, cex = 1.05)
   draw_band(premia, "real_10y", "(b) 10-year real term premium", TRUE)
   draw_band(premia, "inflation_10y", "(c) 10-year inflation risk premium", TRUE)
 }
 
-png(file.path(output_directory, "hamilton_state_bands.png"),
+png(file.path(output_directory, "state_uncertainty_bands.png"),
     width = 1800, height = 1100, res = 180)
 draw_state_figure()
-dev.off()
-pdf(file.path(output_directory, "hamilton_state_bands.pdf"),
+ggnr_dev_off()
+ggnr_pdf(file.path(output_directory, "state_uncertainty_bands.pdf"),
     width = 10, height = 6.1, useDingbats = FALSE)
 draw_state_figure()
-dev.off()
+ggnr_dev_off()
 
-png(file.path(output_directory, "hamilton_premium_bands.png"),
+png(file.path(output_directory, "premium_uncertainty_bands.png"),
     width = 1800, height = 1500, res = 180)
 draw_premium_figure()
-dev.off()
-pdf(file.path(output_directory, "hamilton_premium_bands.pdf"),
+ggnr_dev_off()
+ggnr_pdf(file.path(output_directory, "premium_uncertainty_bands.pdf"),
     width = 10, height = 8.3, useDingbats = FALSE)
 draw_premium_figure()
-dev.off()
+ggnr_dev_off()

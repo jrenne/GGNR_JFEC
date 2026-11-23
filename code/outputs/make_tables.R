@@ -39,7 +39,7 @@ labels <- c(
   lambdaw_eps_m="$\\lambda_{w,m}$", lambdaw_eps_pi_gap="$\\lambda_{w,\\widetilde\\pi}$",
   lambdaw_eps_u="$\\lambda_{w,u}$", lambdaw_eps_w="$\\lambda_{w,w}$",
   lambda_r_star_scale="$\\beta_r$", lambda_pi_star_scale="$\\beta_\\pi$",
-  rho_w.rho_w="$\\rho_w$", sigma_wpi="$\\sigma_{w\\pi}$"
+  rho_w="$\\rho_w$", sigma_wpi="$\\sigma_{w\\pi}$"
 )
 
 groups <- list(
@@ -63,32 +63,33 @@ significance <- function(estimate, se) {
 }
 lines <- c(
   "\\begin{table}[!htbp]", "\\centering",
-  "\\caption{Parameter estimates and score-based standard errors}",
+  "\\caption{Parameter estimates and Hessian-based sandwich standard errors}",
   "\\label{tab:parameters}", "\\begin{threeparttable}", "\\small",
-  "\\renewcommand{\\arraystretch}{0.92}",
+  "\\renewcommand{\\arraystretch}{0.88}",
   "\\begin{tabular*}{\\textwidth}{@{\\extracolsep{\\fill}}lrrr}",
-  "\\toprule", "Parameter & Estimate & OPG & OPG--HAC \\\\", "\\midrule"
+  "\\toprule", "Parameter & Estimate & Hessian & Hessian--HAC \\\\", "\\midrule"
 )
 for (g in names(groups)) {
   lines <- c(lines, paste0("\\multicolumn{4}{l}{\\textit{", g, "}} \\\\"))
   for (i in groups[[g]]) lines <- c(lines, paste0(
     labels[[inf$parameter[i]]], " & ", fmt(inf$estimate[i]), significance(inf$estimate[i], inf$hac_sandwich_se[i]), " & ",
-    fmt(inf$opg_se[i]), " & ", fmt(inf$hac_sandwich_se[i]), " \\\\"
+    fmt(inf$qmle_white_se[i]), " & ", fmt(inf$hac_sandwich_se[i]), " \\\\"
   ))
   if (g != tail(names(groups),1)) lines <- c(lines, "\\addlinespace")
 }
 uncertainty_note <- paste0(
-  "The OPG column uses the inverse outer product of monthly likelihood scores. ",
-  "The OPG--HAC column uses the score-based HAC sandwich documented in ",
-  "the Online Appendix section ``State-space and measurement system.''"
+  "Both columns use the full signed local Hessian inverse. The Hessian column uses the contemporaneous score outer product in the sandwich; ",
+  "Hessian--HAC uses the Bartlett long-run covariance of centered monthly scores with 12 lags. ",
+  "Numerical details and local-approximation limitations are documented in the Online Appendix."
 )
+
 lines <- c(
   lines, "\\bottomrule", "\\end{tabular*}",
   "\\begin{tablenotes}[flushleft]", "\\footnotesize",
   paste0(
     "\\item Notes: Innovation and measurement-error standard deviations are expressed in annualized percentage points where indicated. ",
     uncertainty_note,
-    " $^*$, $^{**}$, and $^{***}$ denote nominal two-sided normal-approximation significance at 10\\%, 5\\%, and 1\\%, using OPG--HAC standard errors and a zero null. These markers are not unit-root tests; for scale parameters, a zero null is on the boundary and the markers are descriptive. The four unconditional moment restrictions determine $\\mu_r$, $\\mu_\\pi$, $\\sigma_m$, and $\\sigma_u$ analytically. The GFC liquidity adjustment is a common additive intercept in real yields during 2008--2009. Long-horizon CPI and Treasury-bill survey errors are fixed at 0.10 percentage point; real-yield errors are fixed at 0.10 percentage point in normal periods and 0.30 percentage point before 2004, during 2008--2009, and from March 2020 through February 2021."
+    " $^*$, $^{**}$, and $^{***}$ denote nominal two-sided normal-approximation significance at 10\\%, 5\\%, and 1\\%, using local Hessian--HAC standard errors and a zero null. These markers are not unit-root tests; for scale parameters, a zero null is on the boundary and the markers are descriptive. The four unconditional moment restrictions determine $\\mu_r$, $\\mu_\\pi$, $\\sigma_m$, and $\\sigma_u$ analytically. The GFC liquidity adjustment is a common additive intercept in real yields during 2008--2009. Long-horizon CPI and Treasury-bill survey errors are fixed at 0.10 percentage point; real-yield errors are fixed at 0.10 percentage point in normal periods and 0.30 percentage point before 2004, during 2008--2009, and from March 2020 through February 2021."
   ),
   "\\end{tablenotes}", "\\end{threeparttable}", "\\end{table}"
 )

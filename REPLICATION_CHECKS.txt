@@ -1,0 +1,91 @@
+REPLICATION CHECKS — JFEC R2 — 23 November 2026
+
+Status: PASS. Local package GGNR_JFEC is integrated with the revised manuscript.
+Environment: R 4.5.1, aarch64-apple-darwin20. No network downloads used.
+
+1. Clean replication
+A separate package copy was run after deleting outputs/figures and outputs/tables.
+The default main.R rebuilt all 8 manuscript/appendix tables and all 17 referenced
+PDF figures in 30.3 seconds for the current local-band version.
+All eight LaTeX tables match the current manuscript sources exactly after removing
+revision-color commands and normalizing whitespace. All 17 figures were rendered
+and checked; axis labels, tick labels, and legends are visible and all fonts embedded.
+
+2. Empirical inference
+A fresh recomputation of the 32-coordinate Hessian and monthly scores took 97.9
+seconds on four processes. H, scores, and the resulting HAC covariance match the
+retained R2 calculation exactly (maximum numerical difference zero). The Hessian
+has 29 positive and three negative eigenvalues. The full signed inverse is used.
+Independent Toeplitz-HAC, direct inversion, transformation, and sum-versus-mean
+normalization checks agree within 5e-12 in relative error. Archived half-step and
+6/24-lag sensitivity checks are reproduced in inference_sensitivity.csv.
+
+3. Full supplemental recomputation
+The primary bands now use local delta propagation with all 32 parameters and
+the complete unchanged Hessian--HAC covariance. A fresh calculation took 6.6 seconds
+on four processes, 12.6 seconds including its half-step check. Derivatives and total
+standard errors match the independent pilot exactly. Halving the step changes total
+standard errors by less than 0.002% at every date for the two trends and three
+ten-year premia. Spectral-root variance reconstruction agrees within 7e-12 absolute
+error; analytic premium state gradients agree with finite differences within 3e-7.
+All eight tables match the manuscript, and estimates and covariance are unchanged.
+
+The earlier nonlinear 1,000-draw diagnostic is archived in hamilton_reference, not
+used for the primary bands. Its independent replay previously reproduced every
+endpoint exactly in 140.2 seconds on one process. A fresh 200-sample filtering exercise took
+158.4 seconds using one process and reproduced every non-timing summary statistic
+exactly. The paper's archived four-process timings are retained with its caches.
+
+4. Parameter Monte Carlo
+Both designs retain all 500 samples, with five rows per sample, correct deterministic
+seeds, and no unresolved optimization or covariance failure. Summary statistics,
+interval indicators, interval lengths, denominators, and Monte Carlo errors were
+reconstructed independently. Three complete samples were rerun and matched the
+archived estimates and HAC standard errors. A separate retry test reproduced the
+800-evaluation failure and 1,600-evaluation success for sensitivity sample 165.
+A fresh small batch tested the resumable runner in a separate output directory.
+The published 500 + 500 sample archive is preserved, not selectively recomputed.
+
+5. Model alignment and protections
+R/C++ prices, the zero-inflation identity, cumulative-inflation convexity, yield
+Jacobians, survey integration, and the corrected current-rate/next-period-inflation
+timing checks pass. Incorrect cache provenance is rejected. An attempt to write
+fresh estimation over the submitted reference is rejected. A short polishing test
+writes to a separate file and preserves the best original-criterion value.
+
+The submitted R1 estimate estimates/baseline.rds and all frozen inputs remain
+byte-for-byte unchanged. The R2 empirical estimate is estimates/baseline_r2.rds.
+No GitHub publication or full empirical/robustness re-estimation was performed.
+Fresh optimization may reach a different local solution; exact replication uses
+archived estimates. The numerical checks do not establish regular asymptotic
+validity or nominal coverage of the empirical local uncertainty bands.
+
+Editorial validation — 23 November 2026
+The eight table builders now use full text-width layouts. Their contents match
+the paper exactly after removing presentation commands. Numeric rows, archived
+estimates, Hessian covariance and parameter standard errors are unchanged.
+
+Clean archive check before documentation update — 23 November 2026
+The delivered ZIP and its SHA-256 checksum were verified, then extracted into
+a separate directory. All existing table and figure files were deleted before
+running main.R with its default switches. The complete build and numerical
+checks passed in 18.3 seconds. All eight tables match the current Paper.tex
+exactly after removing presentation commands. All 17 figure renders are
+pixel-identical to the figures used in the paper, and every font is embedded.
+The 500 reference and 500 sensitivity replications pass their consistency
+checks. Data, reference estimates and model source files are unchanged.
+This was the quick-replication mode using archived estimates and numerical
+exercises; no fresh estimation or Monte Carlo samples were required.
+Tested archive SHA-256: 38d60b607003ab6a08ee738af298ee7bbd4be553c582b9d0fe4819282e42532e
+
+Documentation update — 23 November 2026
+The README now separates quick replication from optional new calculations,
+provides installation and complete exercise examples, and links to an index
+of all eight tables and 17 figures. Technical inference and design details
+are retained in docs/INFERENCE_AND_DESIGN.md. Data and estimate instructions
+have also been clarified. All seven R examples parse; local documentation
+links, script names, and documented environment variables were checked.
+The delivered ZIP differs from the archive tested above only in documentation.
+Every code, data, estimate, and numerical-output file is byte-identical to
+that tested archive. ZIP integrity and the protected reference hashes pass.
+The current delivered ZIP checksum is in GGNR_JFEC_R2.zip.sha256 alongside it.

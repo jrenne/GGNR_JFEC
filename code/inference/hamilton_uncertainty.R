@@ -1,7 +1,8 @@
-# Hamilton-style state and risk-premium uncertainty for the preferred model.
+source("code/validation/cache_provenance.R")
+# Archived nonlinear Gaussian-draw diagnostic; primary bands use delta_uncertainty.R.
 # Each replication draws working parameters from the HAC approximation,
 # reruns the estimation filter, draws from each filtered state distribution, and reprices
-# bonds. Pointwise bands therefore use the same information set as the paper.
+# bonds. The information set matches the paper, but these are not its primary bands.
 
 source("code/model/iekf.R")
 if (!requireNamespace("Rcpp", quietly = TRUE)) stop("Rcpp is required.")
@@ -10,15 +11,16 @@ Rcpp::sourceCpp("code/inference/hamilton_state_sampler.cpp")
 
 estimate_file <- Sys.getenv(
   "GGNR_START_FILE",
-  "estimates/baseline.rds"
+  "estimates/baseline_r2.rds"
 )
 inference_file <- Sys.getenv(
   "GGNR_HAC_FILE",
-  "outputs/diagnostics/inference/hac_sandwich_covariance.rds"
+  file.path(Sys.getenv("GGNR_INFERENCE_DIR", "outputs/diagnostics/inference"),
+            "hac_sandwich_covariance.rds")
 )
 output_directory <- Sys.getenv(
   "GGNR_HAMILTON_DIR",
-  "outputs/diagnostics/uncertainty"
+  "outputs/diagnostics/hamilton_reference"
 )
 draw_count <- as.integer(Sys.getenv("GGNR_HAMILTON_DRAWS", "1000"))
 core_count <- as.integer(Sys.getenv(
@@ -44,57 +46,15 @@ if (is.null(theta_hat) || is.null(working_covariance)) {
 }
 working_covariance <- working_covariance[names(theta_hat), names(theta_hat)]
 
-p_template <- modifyList(reduced_hfi_no_output_defaults(), estimate$parameters)
-p_template$include_core_cpi <- FALSE
-p_template$sigma_inflation_survey_long <- 0.10 / 1200
-p_template$sigma_tbill_survey_long <- 0.10 / 1200
-p_template$sigma_real_yield <- 0.10 / 1200
-p_template$sigma_real_yield_liquidity <- 0.20 / 1200
-p_template$liquidity_spread_covid <- 0
-
+source("code/inference/parameterization.R")
 data <- load_paper_data()
 short_rate <- load_observed_real_short_rate_inputs(data$dates)
-hfi_none <- list(
-  standardized = rep(NaN, length(data$dates)),
-  observed = rep(FALSE, length(data$dates)), source = "none",
-  shock = NA_character_, event_count = 0L, month_count = 0L
-)
-
-contractive_from_raw <- function(raw) {
-  decomposition <- svd(raw)
-  singular <- decomposition$d / sqrt(1 + decomposition$d^2)
-  decomposition$u %*% diag(singular, nrow = length(singular)) %*%
-    t(decomposition$v)
-}
-free_measurement <- c(
-  "sigma_inf", "sigma_ptr", "sigma_inflation_survey",
-  "sigma_tbill_survey", "sigma_nominal_yield"
-)
-from_working <- function(theta) {
-  p <- p_template
-  p$rho_r_star <- plogis(theta["rho_r_star"])
-  p$sigma_r_star <- exp(theta["sigma_r_star"]) / 1200
-  p$rho_pi_star <- plogis(theta["rho_pi_star"])
-  p$sigma_pi_star <- exp(theta["sigma_pi_star"]) / 1200
-  raw <- matrix(theta[paste0("cyclical_raw_", seq_len(4))], 2, 2)
-  p$cyclical_var <- contractive_from_raw(raw)
-  dimnames(p$cyclical_var) <- list(c("m", "pi_gap"), c("m", "pi_gap"))
-  p$sigma_pi_gap <- exp(theta["sigma_pi_gap"]) / 1200
-  p$impact_pi_m_ratio <- unname(theta["impact_pi_m_ratio"])
-  p$liquidity_spread_gfc <- exp(theta["liquidity_spread_gfc"]) / 1200
-  for (name in free_measurement) {
-    p[[name]] <- exp(theta[paste0("measurement_", name)])
-  }
-  p$lambda_0[reduced_hfi_no_output_shocks] <-
-    theta[paste0("lambda0_", reduced_hfi_no_output_shocks)]
-  p$lambda_w[reduced_hfi_no_output_shocks] <-
-    theta[paste0("lambdaw_", reduced_hfi_no_output_shocks)]
-  p$lambda_r_star_scale <- unname(theta["lambda_r_star_scale"])
-  p$lambda_pi_star_scale <- unname(theta["lambda_pi_star_scale"])
-  p$rho_w <- plogis(theta["rho_w"])
-  p$sigma_w <- sqrt(1 - p$rho_w^2)
-  p$sigma_wpi <- unname(theta["sigma_wpi"])
-  p
+hfi_none <- no_hfi_data(data$dates)
+targets <- reduced_hfi_exact_targets(data, short_rate)
+from_working <- make_parameterization(estimate$parameters, targets)$from_working
+if (is.null(inference$theta) ||
+    !isTRUE(all.equal(theta_hat, inference$theta, tolerance = 1e-12))) {
+  stop("The parameter covariance belongs to another empirical estimate.")
 }
 
 positive_sqrt <- function(value, tolerance = 1e-12) {
@@ -114,40 +74,7 @@ positive_sqrt <- function(value, tolerance = 1e-12) {
 parameter_decomposition <- positive_sqrt(working_covariance)
 parameter_root <- parameter_decomposition$root
 
-inflation_compensation <- function(coefs, states, maturities) {
-  vapply(maturities, function(maturity) {
-    loading <- rowSums(coefs$B_X_pi[, seq_len(maturity), drop = FALSE]) /
-      maturity
-    intercept <- sum(coefs$A_X_exp_pi[seq_len(maturity)]) / maturity +
-      0.5 * sum(coefs$Conv_pi[seq_len(maturity)]) / maturity
-    intercept + as.numeric(states %*% loading)
-  }, numeric(nrow(states)))
-}
-
-calculate_premia <- function(fit, states) {
-  fitted <- function(coefs) y_fitting_r(
-    t(states), coefs$A_X_for, coefs$B_X_for, coefs$A_X_exp,
-    fit$objects$pars$r_lb, sqrt(cumsum(diag(t(coefs$B_X_for) %*% fit$objects$Sigma2_X %*% coefs$B_X_for))), coefs$A_X_for_pi,
-    coefs$B_X_pi, fit$objects$Sigma2_X, coefs$B_X_cum,
-    coefs$B_X_cum_pi
-  )
-  physical <- fitted(fit$objects$coefs_p)
-  risk_neutral <- fitted(fit$objects$coefs_q)
-  maturities <- c(60L, 120L)
-  nominal <- 1200 * (risk_neutral$yfit_all_n[, maturities] -
-                       physical$yfit_all_n[, maturities])
-  real <- 1200 * (risk_neutral$yfit_all_r[, maturities] -
-                    physical$yfit_all_r[, maturities])
-  inflation <- 1200 * (
-    inflation_compensation(fit$objects$coefs_q, states, maturities) -
-      inflation_compensation(fit$objects$coefs_p, states, maturities)
-  )
-  cbind(
-    nominal_5y = nominal[, 1], nominal_10y = nominal[, 2],
-    real_5y = real[, 1], real_10y = real[, 2],
-    inflation_5y = inflation[, 1], inflation_10y = inflation[, 2]
-  )
-}
+source("code/inference/premium_functions.R")
 
 baseline_fit <- run_kf_reduced_hfi_no_output(
   data, from_working(theta_hat), hfi_none, short_rate,
@@ -299,14 +226,16 @@ diagnostics <- data.frame(
 write.csv(diagnostics, file.path(output_directory, "simulation_diagnostics.csv"),
           row.names = FALSE)
 saveRDS(list(
+  provenance = ggnr_cache_provenance(),
   state_bands = state_bands, premium_bands = premium_bands,
   state_variance_decomposition = state_variance_decomposition,
   diagnostics = diagnostics, parameter_seeds = draw_seeds,
   parameter_covariance = working_covariance,
   parameter_covariance_eigenvalues = parameter_decomposition$eigenvalues,
   baseline_states = baseline_states, baseline_premia = baseline_premia,
+  theta = theta_hat,
   state_information_set = "filtered",
-  parameter_distribution = "asymptotic normal using OPG-based HAC covariance",
+  parameter_distribution = "local Gaussian approximation using Hessian-HAC covariance",
   exact_moment_targets_treated_as_fixed = TRUE
 ), file.path(output_directory, "hamilton_uncertainty.rds"))
 

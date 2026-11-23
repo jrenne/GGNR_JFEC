@@ -1,4 +1,4 @@
 "test","coefficient_count","covariance_rank","wald_statistic","degrees_freedom","p_value","log10_p_value","reference_distribution"
-"Lambda blocks",12,12,2989.92053318062,NA,NA,NA,"diagnostic only: beta_r and beta_pi are unidentified under this null; the usual chi-square reference is invalid"
-"Constant lambda block",6,6,95.434407184179,6,2.2449126314101e-18,-17.6488005564134,"chi-square"
-"State-dependent lambda block",6,6,207.374544734529,NA,NA,NA,"diagnostic only: beta_r and beta_pi are unidentified under this null; the usual chi-square reference is invalid"
+"Lambda blocks",12,12,1556.84615312328,NA,NA,NA,"diagnostic only: beta_r and beta_pi are unidentified under this null; the usual chi-square reference is invalid"
+"Constant lambda block",6,6,258.936115787514,6,5.04360175030208e-53,-52.2972592132319,"chi-square"
+"State-dependent lambda block",6,6,56.2801165158044,NA,NA,NA,"diagnostic only: beta_r and beta_pi are unidentified under this null; the usual chi-square reference is invalid"

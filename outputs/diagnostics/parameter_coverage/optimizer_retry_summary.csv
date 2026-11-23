@@ -1,0 +1,2 @@
+"case","rep","seed","initial_limit","retry_limit","initial_status","retry_status","retry_evaluations","retry_fit_covariance_seconds","cached_retry_reused","resolved"
+"higher_zlb_50",139,20310239,800,1600,98,0,822,2.671,TRUE,TRUE
