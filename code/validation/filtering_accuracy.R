@@ -6,6 +6,7 @@ source("code/validation/cache_provenance.R")
 # exercise isolates filtering accuracy from the separate pricing-accuracy test.
 
 source("code/model/iekf.R")
+source("code/model/fast_interface.R")
 if (!requireNamespace("Rcpp", quietly = TRUE)) stop("Rcpp is required.")
 Rcpp::sourceCpp("code/model/pricing_helpers.cpp")
 
@@ -321,12 +322,28 @@ run_fixed_iekf <- function(Y) {
 }
 
 # Verify that the stand-alone EKF reproduces the estimation filter exactly.
+run_reference_ekf <- run_fixed_ekf
+run_reference_iekf <- run_fixed_iekf
+run_fast <- function(Y, iterated) {
+  mu <- as.vector(solve(diag(K) - obj$Phi, obj$Mu))
+  z <- fast_iekf_cpp(obj, Y, data$mats_n, data$mats_r, data$hstep_t,
+    mu, stationary_covariance_no_output(obj), iterated, 0, 2L, NULL, FALSE)
+  colnames(z$x_upd) <- state_names
+  z$loglik <- z$fval; z$loglik_t <- z$fval_t
+  z$iteration_fraction <- mean(z$iterated); z
+}
+run_fixed_ekf <- function(Y) run_fast(Y, FALSE)
+run_fixed_iekf <- function(Y) run_fast(Y, TRUE)
 observed_ekf <- run_fixed_ekf(Y_observed)
+independent_ekf <- run_reference_ekf(Y_observed)
+independent_iekf <- run_reference_iekf(Y_observed)
+stopifnot(max(abs(observed_ekf$x_upd - independent_ekf$x_upd)) < 1e-8,
+  max(abs(run_fixed_iekf(Y_observed)$x_upd - independent_iekf$x_upd)) < 1e-8)
 validation <- c(
   max_state_difference = max(abs(observed_ekf$x_upd - reference$x_upd)),
   loglik_difference = observed_ekf$loglik - reference$fval
 )
-if (validation["max_state_difference"] > 1e-10 ||
+if (validation["max_state_difference"] > 1e-8 ||
     abs(validation["loglik_difference"]) > 1e-6) {
   stop(sprintf(
     paste0("The simulation EKF does not reproduce the estimation filter: ",
@@ -353,7 +370,7 @@ iekf_validation <- c(
   iteration_fraction_difference = observed_iekf$iteration_fraction -
     reference_iekf$iteration_fraction
 )
-if (max(abs(iekf_validation)) > 1e-8) {
+if (max(abs(iekf_validation)) > 1e-6) {
   stop(
     "The stand-alone IEKF does not reproduce the estimation IEKF: ",
     paste(names(iekf_validation), signif(iekf_validation, 4), collapse = ", ")

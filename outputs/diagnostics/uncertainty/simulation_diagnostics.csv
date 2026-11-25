@@ -1,2 +1,2 @@
 "method","parameter_count","sample_months","step_scale","cores","elapsed_seconds","reconstructed_loglik","saved_loglik","conditional_on_exact_moment_targets","finite_sample_coverage_established","elapsed_seconds_including_half_step","max_premium_state_gradient_error"
-"local_delta",32,695,1e-05,4,6.611,56233.7136714607,56233.7136714607,TRUE,FALSE,12.618,2.7021444282127e-07
+"local_delta",30,415,1e-05,4,0.844999999999999,39575.6708631478,39575.6708631478,TRUE,FALSE,1.552,1.86329612006375e-06

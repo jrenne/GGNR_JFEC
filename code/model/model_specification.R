@@ -208,36 +208,22 @@ apply_reduced_hfi_exact_moments <- function(p, targets) {
        moments = moments, targets = targets)
 }
 
-infer_gaussian_shadow_moments <- function(observed_short_rate, lower_bound = 0) {
-  observed <- observed_short_rate[is.finite(observed_short_rate)]
-  target <- c(mean = mean(observed), variance = var(observed))
-  censored_moments <- function(theta) {
-    mu <- theta[1]
-    sigma <- exp(theta[2])
-    centered <- mu - lower_bound
-    d <- centered / sigma
-    probability <- pnorm(d)
-    density <- dnorm(d)
-    first_centered <- centered * probability + sigma * density
-    second_centered <- (centered^2 + sigma^2) * probability +
-      centered * sigma * density
-    c(mean = lower_bound + first_centered,
-      variance = second_centered - first_centered^2)
-  }
-  objective <- function(theta) {
-    discrepancy <- (censored_moments(theta) - target) /
-      pmax(abs(target), 1e-10)
-    sum(discrepancy^2)
-  }
-  fit <- optim(c(target["mean"], log(sd(observed))), objective,
-               method = "BFGS", control = list(reltol = 1e-14, maxit = 1000))
-  fitted <- censored_moments(fit$par)
-  if (!is.finite(fit$value) || fit$value > 1e-6) {
-    stop("Unable to infer Gaussian shadow-rate moments from censored data.")
-  }
-  c(mean = unname(fit$par[1]), variance = exp(fit$par[2])^2,
-    fitted_effective_mean = fitted["mean"],
-    fitted_effective_variance = fitted["variance"], objective = fit$value)
+infer_gaussian_shadow_moments<-function(observed_short_rate,lower_bound=0) {
+ y<-observed_short_rate[is.finite(observed_short_rate)]
+ m<-mean(y)-lower_bound;v<-var(y);stopifnot(m>0,v>0)
+ standardized<-function(z) {
+  prob<-pnorm(z);dens<-dnorm(z);a<-z*prob+dens
+  b<-(z*z+1)*prob+z*dens-a*a
+  c(a=a,b=b)
+ }
+ fn<-function(z){ab<-standardized(z);ab['b']/ab['a']^2-v/m^2}
+ z<-uniroot(fn,c(-6,100),tol=1e-13)$root
+ ab<-standardized(z);sig<-m/ab['a'];mu<-lower_bound+sig*z
+ fm<-lower_bound+sig*ab['a'];fv<-sig^2*ab['b']
+ objective<-sum(((c(fm,fv)-c(mean(y),v))/c(mean(y),v))^2)
+ stopifnot(objective<1e-16)
+ c(mean=unname(mu),variance=unname(sig^2),fitted_effective_mean=unname(fm),
+   fitted_effective_variance=unname(fv),objective=unname(objective))
 }
 
 reduced_hfi_exact_targets <- function(data, observed_short_rate) {

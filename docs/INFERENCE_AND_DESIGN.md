@@ -8,57 +8,51 @@ output-directory options, and [the output index](OUTPUTS.md) for paper items.
 
 `code/inference/hessian_sandwich.R` separately computes the negative Hessian
 H and monthly score contributions. Both standard-error columns use the full
-signed inverse of H. The White column uses the contemporaneous score outer
+inverse of the positive-definite negative Hessian H. The White column uses the contemporaneous score outer
 product; Hessian--HAC uses a Bartlett covariance of centered scores with 12
 monthly lags. All matrices use sum normalization: V = H^-1 S H^-T, without
 an additional factor of sample size. The full transformation Jacobian maps
-32 free coordinates to 34 reported economic quantities, including innovation
+30 free coordinates to 34 reported economic quantities, including innovation
 scales determined by the four fixed empirical moment targets.
 
-For numerical derivatives, the branches of the known current short-rate
-max term are held at their values at the evaluation point. Estimation and
-ordinary filtering retain the original max. Future Gaussian pricing
-terms are unchanged. The local Hessian has three negative eigenvalues; their
-signed inverse is retained without clipping or deleting directions. These
-are local numerical standard errors, not a proof of regular asymptotic
-validity at regime boundaries. The archived half-step check and the
-independent algebra audit document numerical stability. The default derivative
-step is 1e-4 times max(1, abs(theta)); override `GGNR_HESSIAN_STEP` to recompute
-at another step, and `GGNR_INFERENCE_DIR` to keep a separate result.
+For numerical derivatives, the current nominal-rate formula is kept unchanged
+at the evaluation point: below zero it stays zero, while above zero it follows
+the perturbed shadow rate. All states and prices are recomputed. Optimization
+retains the original max specification. The negative Hessian is evaluated in a
+nonsingular linear rescaling of the 30 free coordinates and transformed back
+by the full chain rule. It is positive definite at the supplied estimate. No
+eigenvalues are clipped or directions removed. The default balanced-coordinate
+step is 0.001, with an automatic check at half that step; override
+`GGNR_HESSIAN_STEP` and `GGNR_INFERENCE_DIR` for a separate calculation.
+
+The two calibrated measurement-error quantities are also tabulated, with zero
+conditional variance: additional CPI measurement error is zero and PTR SD is
+0.20 annualized percentage point. Four empirical moment targets determine the
+two unconditional means and the innovation scales of m and u. Their estimation
+uncertainty and uncertainty about the calibrations are not included in these
+conditional standard errors. The full Jacobian retains the dependence of the
+moment-derived scales on every free parameter.
 
 The primary state and premium bands use a first-order delta calculation,
 combining conditional filtering variance with D V D'. Here D is the total
 parameter derivative of each filtered state or premium, obtained by rerunning
-the filter in all 32 coordinates. For premia it includes direct pricing effects.
+the filter in all 30 coordinates. For premia it includes direct pricing effects.
 The same complete Hessian--HAC covariance, including every cross-covariance,
-is retained. No parameters are frozen or removed from the covariance.
-The four empirical moment targets are fixed. Local branch conventions are
-used only for derivatives. Normal pointwise bands are centered on the existing
+is retained. All 30 freely estimated coordinates and their cross-covariances are retained.
+The four empirical moment targets and measurement calibrations are fixed. Local branch conventions are
+used only for derivatives. Normal pointwise bands are centered on the estimated
 point estimate; finite-sample coverage is not established for these bands.
-The local approximation does not eliminate weak identification or the
-nonregular-curvature qualification above.
+The local approximation does not establish nominal finite-sample coverage or
+regular asymptotics at a lower-bound regime boundary.
 
-`code/inference/delta_uncertainty.R` recomputes these bands in about 7 seconds
-on four processes (approximately 13 seconds including the automatic half-step
-check). `GGNR_DELTA_CORES` and `GGNR_DELTA_STEP` select the core
+`code/inference/delta_uncertainty.R` recomputes these bands with an automatic half-step check. Measured runtime
+for this release is recorded in REPLICATION_CHECKS.txt. `GGNR_DELTA_CORES` and `GGNR_DELTA_STEP` select the core
 count and relative central-difference step (default 1e-5 times max(1, abs(theta))).
 Set `GGNR_UNCERTAINTY_DIR` to a separate directory for a fresh result.
 The archived half-step result is independently compared in
 `code/validation/delta_alignment.R`, which also reconstructs the full
 parameter variance through a spectral root and checks normal-band endpoints.
-Half-step total standard errors differ by less than 0.002% for the five main
-state and ten-year premium series.
-
-The earlier nonlinear Gaussian-draw experiment remains available in
-`code/inference/hamilton_uncertainty.R` and
-`outputs/diagnostics/hamilton_reference/` as a diagnostic, not as the published
-bands. It contains 1,000 accepted draws from 1,124 proposals. Such global
-draws can leave the local neighborhood, including changing risk-neutral
-dynamics from stable to explosive, and produce extreme tails even when
-finite-horizon prices remain computable. No new stationarity restriction,
-tail trimming, or draw rejection has been introduced to narrow the primary
-bands. The delta calculation is explicitly local rather than a global
-probability assessment of these nonlinear tails.
+Numerical step checks are written alongside the rebuilt results.
 
 ## Small-model parameter-coverage experiment
 
@@ -67,8 +61,8 @@ scales 0.20 and 0.15 annualized percentage point. Samples have 695 months,
 known means, and identical physical and risk-neutral dynamics. The five
 estimated coordinates are two logit persistences and logs of two innovation
 scales and a measurement-error scale. Observations are nominal and real
-yields at 12 and 60 months and inflation. The measurement profile is frozen
-at submitted-estimate magnitudes: 0.0663 pp for nominal yields, 0.10 pp for
+yields at 12 and 60 months and inflation. The measurement profile is fixed
+in this illustrative design: 0.0663 pp for nominal yields, 0.10 pp for
 real yields, and 2.183 pp for inflation. The common scale is re-estimated.
 
 The reference targets a 15% stationary probability of negative shadow rates;
@@ -79,7 +73,7 @@ coordinates. The reported reference rates are 89.0/93.8/89.8/92.0/94.0%; the
 sensitivity rates are 82.6/93.4/70.0/89.8/94.0%. No bias correction is applied.
 The generator and estimator share the pricing approximation, so this
 experiment does not measure pricing misspecification or establish inference
-accuracy for all 32 empirical parameters.
+accuracy for all 30 empirical parameters.
 
 The runner retains all samples, including failures and optimizer retries. An
 initial limit of 800 likelihood evaluations is increased to 1,600 if required,
@@ -103,3 +97,12 @@ the two-factor parameter experiment, which re-estimates five coordinates in
 each of 500 reference and 500 higher-ZLB samples. Both use the same pricing
 approximation in generation and estimation; the separate pricing benchmark
 addresses approximation error.
+
+## Omitting 2020
+
+The published omit-2020 check holds all baseline parameters and all four moment
+targets fixed. It removes the 2020 measurement updates while continuing the
+same transition law. It isolates filtering sensitivity to that year, rather
+than claiming robustness under parameter re-estimation. Optional alternative-
+sample re-estimation remains available through estimate_robustness.R and is
+saved separately; its optimizer message is not a convergence certificate.

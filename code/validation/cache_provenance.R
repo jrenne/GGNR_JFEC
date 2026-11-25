@@ -2,7 +2,8 @@
 ggnr_cache_provenance <- function(estimate_file = Sys.getenv(
     "GGNR_START_FILE", "estimates/baseline_r2.rds")) {
   files <- c(estimate_file, "data/input/paper_data.rds",
-             list.files("code/model", full.names = TRUE, pattern = "\\.(R|cpp)$"))
+             list.files("code/model", full.names = TRUE, pattern = "\\.(R|cpp|h)$"),
+             "code/data/load_data.R", "code/inference/parameterization.R")
   list(files = files, md5 = unname(tools::md5sum(files)))
 }
 

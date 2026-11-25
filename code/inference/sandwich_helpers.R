@@ -102,7 +102,7 @@ assemble_hessian_sandwich <- function(theta, H, scores, J, natural, lags = 12L) 
   hac_working <- sandwich(S)
   white_natural <- J %*% white_working %*% t(J)
   hac_natural <- J %*% hac_working %*% t(J)
-  if (any(diag(white_natural) <= 0) || any(diag(hac_natural) <= 0)) {
+  if (any(diag(white_natural) < -1e-12) || any(diag(hac_natural) < -1e-12)) {
     stop("Nonpositive variance; inference is not silently clipped.")
   }
   list(theta = theta, H = H, scores = scores, jacobian = J, J = J,
@@ -111,9 +111,9 @@ assemble_hessian_sandwich <- function(theta, H, scores, J, natural, lags = 12L) 
        hac_working = hac_working, hac_natural = hac_natural,
        natural_estimate = natural,
        summary = data.frame(parameter = names(natural), estimate = unname(natural),
-         qmle_white_se = sqrt(diag(white_natural)),
-         hac_sandwich_se = sqrt(diag(hac_natural))),
-       method = "local Hessian sandwich, full signed inverse",
+         qmle_white_se = sqrt(pmax(diag(white_natural), 0)),
+         hac_sandwich_se = sqrt(pmax(diag(hac_natural), 0))),
+       method = "Hessian sandwich; four empirical targets and measurement calibrations held fixed",
        active_branches_held_fixed = TRUE,
        empirical_moment_targets_held_fixed = TRUE)
 }

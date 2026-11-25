@@ -8,6 +8,11 @@ output_file <- Sys.getenv(
   "GGNR_FILTER_TABLE",
   "outputs/tables/table_filtering_accuracy.tex"
 )
+replications <- read.csv(file.path(input_directory, "replication_metrics.csv"))
+selected <- subset(replications, regime %in% c("all", "binding") & series %in% c("r_star", "pi_star", "m", "shadow_rate"))
+se <- aggregate(selected$coverage_95, selected[, c("filter", "regime", "series")], function(x) sd(x[is.finite(x)]) / sqrt(sum(is.finite(x))))
+max_mcse <- 100 * max(se$x)
+binding_reps <- length(unique(subset(replications, regime == "binding" & series == "shadow_rate" & is.finite(coverage_95))$replication))
 summary_table <- read.csv(file.path(input_directory, "filtering_summary.csv"))
 diagnostics <- read.csv(file.path(input_directory, "simulation_diagnostics.csv"))
 series_order <- c("r_star", "pi_star", "m", "shadow_rate")
@@ -78,10 +83,10 @@ lines <- c(
     "Gaussian 95\\%% filtering intervals. A negative latent shadow rate occurs in ",
     "%.1f\\%% of simulated months. The fixed two-step IEKF repeats the measurement ",
     "update once in every month. The UKF uses 13 sigma points. The largest ",
-    "Monte Carlo standard error among the reported coverage estimates is 1.3 ",
-    "percentage points."),
+    "Monte Carlo standard error among the reported coverage estimates is %.1f ",
+    "percentage points. Panel B averages over %d replications with at least one negative-shadow-rate month; all replications enter Panel A."),
     diagnostics$replication_count, diagnostics$sample_months,
-    100 * diagnostics$mean_binding_fraction
+    100 * diagnostics$mean_binding_fraction, max_mcse, binding_reps
   ),
   "\\end{tablenotes}",
   "\\end{threeparttable}",

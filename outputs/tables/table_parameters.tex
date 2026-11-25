@@ -4,57 +4,57 @@
 \label{tab:parameters}
 \begin{threeparttable}
 \small
-\renewcommand{\arraystretch}{0.88}
+\renewcommand{\arraystretch}{0.85}
 \begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lrrr}
 \toprule
 Parameter & Estimate & Hessian & Hessian--HAC \\
 \midrule
 \multicolumn{4}{l}{\textit{State dynamics}} \\
-$\rho_{r^*}$ & 0.9946$^{***}$ & 0.0009 & 0.0018 \\
-$\sigma_{r^*}$ (pp) & 0.2022$^{***}$ & 0.0389 & 0.0681 \\
-$\rho_{\pi^*}$ & 0.9986$^{***}$ & 0.0004 & 0.0007 \\
-$\sigma_{\pi^*}$ (pp) & 0.1739$^{***}$ & 0.0210 & 0.0328 \\
-$\Phi_{m,m}$ & 0.9570$^{***}$ & 0.0048 & 0.0081 \\
-$\Phi_{m,\widetilde\pi}$ & 0.0220 & 0.0106 & 0.0197 \\
-$\Phi_{\widetilde\pi,m}$ & 0.0063 & 0.0191 & 0.0368 \\
-$\Phi_{\widetilde\pi,\widetilde\pi}$ & 0.6666$^{***}$ & 0.0586 & 0.1091 \\
-$\sigma_m$ (pp) & 0.5888$^{***}$ & 0.0851 & 0.1439 \\
-$\sigma_{\widetilde\pi}$ (pp) & 0.8714$^{***}$ & 0.0475 & 0.0916 \\
-$\sigma_u$ (pp) & 1.7326$^{***}$ & 0.1841 & 0.3423 \\
-$b_{\pi m}$ & 0.3784 & 0.1599 & 0.2615 \\
+$\rho_{r^*}$ & 0.9957$^{***}$ & 0.0008 & 0.0010 \\
+$\sigma_{r^*}$ (pp) & 0.1740$^{***}$ & 0.0133 & 0.0209 \\
+$\rho_{\pi^*}$ & 0.9834$^{***}$ & 0.0017 & 0.0035 \\
+$\sigma_{\pi^*}$ (pp) & 0.0551$^{***}$ & 0.0060 & 0.0056 \\
+$\Phi_{m,m}$ & 0.9143$^{***}$ & 0.0138 & 0.0225 \\
+$\Phi_{m,\widetilde\pi}$ & 0.1784$^{***}$ & 0.0348 & 0.0642 \\
+$\Phi_{\widetilde\pi,m}$ & -0.0118 & 0.0052 & 0.0088 \\
+$\Phi_{\widetilde\pi,\widetilde\pi}$ & 0.9989$^{***}$ & 0.0140 & 0.0252 \\
+$\sigma_m$ (pp) & 0.3279$^{***}$ & 0.0173 & 0.0261 \\
+$\sigma_{\widetilde\pi}$ (pp) & 0.1492$^{***}$ & 0.0276 & 0.0530 \\
+$\sigma_u$ (pp) & 3.1658$^{***}$ & 0.0217 & 0.0353 \\
+$b_{\pi m}$ & 0.0788 & 0.0824 & 0.1345 \\
 \addlinespace
 \multicolumn{4}{l}{\textit{Liquidity adjustment}} \\
-$\ell_{GFC}$ (pp) & 0.7187$^{**}$ & 0.2210 & 0.3031 \\
+$\ell_{GFC}$ (pp) & 0.4631$^{*}$ & 0.1860 & 0.2644 \\
 \addlinespace
 \multicolumn{4}{l}{\textit{Measurement-error standard deviations}} \\
-$\sigma_{\pi,me}$ (pp) & 2.2422$^{***}$ & 0.3022 & 0.4750 \\
-$\sigma_{PTR,me}$ (pp) & 0.7465$^{***}$ & 0.1281 & 0.2707 \\
-$\sigma_{CPI1,me}$ (pp) & 0.8435$^{***}$ & 0.1554 & 0.3019 \\
-$\sigma_{TB1,me}$ (pp) & 0.4788$^{***}$ & 0.0450 & 0.0678 \\
-$\sigma_{y^N,me}$ (pp) & 0.0660$^{***}$ & 0.0044 & 0.0083 \\
+$\sigma_{\pi,me}$ (pp) & 0.0000 & -- & -- \\
+$\sigma_{PTR,me}$ (pp) & 0.2000 & -- & -- \\
+$\sigma_{CPI1,me}$ (pp) & 0.7671$^{***}$ & 0.0944 & 0.1754 \\
+$\sigma_{TB1,me}$ (pp) & 0.4888$^{***}$ & 0.0280 & 0.0410 \\
+$\sigma_{y^N,me}$ (pp) & 0.0206$^{***}$ & 0.0011 & 0.0022 \\
 \addlinespace
 \multicolumn{4}{l}{\textit{Prices of risk and risk state}} \\
-$\lambda_{0,r^*}$ & 0.0167 & 0.0130 & 0.0250 \\
-$\lambda_{0,\pi^*}$ & 0.0825 & 0.0291 & 0.0540 \\
-$\lambda_{0,m}$ & 0.4754$^{***}$ & 0.0586 & 0.0915 \\
-$\lambda_{0,\widetilde\pi}$ & -3.8126$^{***}$ & 0.5284 & 0.9647 \\
-$\lambda_{0,u}$ & 5.3103$^{***}$ & 0.8778 & 1.4557 \\
-$\lambda_{0,w}$ & -0.0682 & 0.2640 & 0.3476 \\
-$\lambda_{w,r^*}$ & -0.0263 & 0.0113 & 0.0207 \\
-$\lambda_{w,\pi^*}$ & 0.0457 & 0.0200 & 0.0359 \\
-$\lambda_{w,m}$ & 0.4188$^{***}$ & 0.0745 & 0.1301 \\
-$\lambda_{w,\widetilde\pi}$ & -2.7960$^{**}$ & 0.7513 & 1.3695 \\
-$\lambda_{w,u}$ & 4.1456$^{**}$ & 1.1553 & 2.0018 \\
-$\lambda_{w,w}$ & 0.0579 & 0.2046 & 0.2512 \\
-$\beta_r$ & 0.2433 & 0.0894 & 0.1555 \\
-$\beta_\pi$ & 0.1394$^{*}$ & 0.0414 & 0.0727 \\
-$\rho_w$ & 0.9286$^{***}$ & 0.0198 & 0.0288 \\
-$\sigma_{w\pi}$ & -0.0016 & 0.0223 & 0.0286 \\
+$\lambda_{0,r^*}$ & -0.0197 & 0.1110 & 0.1353 \\
+$\lambda_{0,\pi^*}$ & -0.1707$^{***}$ & 0.0312 & 0.0514 \\
+$\lambda_{0,m}$ & 0.0946 & 0.2211 & 0.2707 \\
+$\lambda_{0,\widetilde\pi}$ & 0.0286 & 0.0391 & 0.0415 \\
+$\lambda_{0,u}$ & -0.1871 & 0.1037 & 0.1518 \\
+$\lambda_{0,w}$ & 0.5797$^{**}$ & 0.2118 & 0.2762 \\
+$\lambda_{w,r^*}$ & 0.2926$^{***}$ & 0.0785 & 0.1074 \\
+$\lambda_{w,\pi^*}$ & -0.0040 & 0.0247 & 0.0494 \\
+$\lambda_{w,m}$ & -0.5483$^{***}$ & 0.1288 & 0.1486 \\
+$\lambda_{w,\widetilde\pi}$ & 0.0732 & 0.0556 & 0.0753 \\
+$\lambda_{w,u}$ & 0.2683 & 0.1144 & 0.1868 \\
+$\lambda_{w,w}$ & -0.3580$^{*}$ & 0.1575 & 0.1967 \\
+$\beta_r$ & 0.2335$^{***}$ & 0.0333 & 0.0400 \\
+$\beta_\pi$ & 2.6196$^{***}$ & 0.3357 & 0.3448 \\
+$\rho_w$ & 0.8494$^{***}$ & 0.0203 & 0.0225 \\
+$\sigma_{w\pi}$ & -0.0165 & 0.0470 & 0.0708 \\
 \bottomrule
 \end{tabular*}
 \begin{tablenotes}[flushleft]
 \footnotesize
-\item Notes: Innovation and measurement-error standard deviations are expressed in annualized percentage points where indicated. Both columns use the full signed local Hessian inverse. The Hessian column uses the contemporaneous score outer product in the sandwich; Hessian--HAC uses the Bartlett long-run covariance of centered monthly scores with 12 lags. Numerical details and local-approximation limitations are documented in the Online Appendix. $^*$, $^{**}$, and $^{***}$ denote nominal two-sided normal-approximation significance at 10\%, 5\%, and 1\%, using local Hessian--HAC standard errors and a zero null. These markers are not unit-root tests; for scale parameters, a zero null is on the boundary and the markers are descriptive. The four unconditional moment restrictions determine $\mu_r$, $\mu_\pi$, $\sigma_m$, and $\sigma_u$ analytically. The GFC liquidity adjustment is a common additive intercept in real yields during 2008--2009. Long-horizon CPI and Treasury-bill survey errors are fixed at 0.10 percentage point; real-yield errors are fixed at 0.10 percentage point in normal periods and 0.30 percentage point before 2004, during 2008--2009, and from March 2020 through February 2021.
+\item Notes: Innovation and measurement-error standard deviations are expressed in annualized percentage points where indicated. Both columns use the inverse negative Hessian. The Hessian column uses the contemporaneous score outer product in the sandwich; Hessian--HAC uses the Bartlett long-run covariance of centered monthly scores with 12 lags. Inference is conditional on the four empirical moment targets and fixed calibrations. The additional CPI measurement-error standard deviation is zero and the PTR measurement-error standard deviation is fixed at 0.20 percentage point; dashes indicate fixed values. $^*$, $^{**}$, and $^{***}$ denote nominal two-sided normal-approximation significance at 10\%, 5\%, and 1\%, using local Hessian--HAC standard errors and a zero null. Markers are descriptive for scale parameters and are not unit-root tests. The four unconditional moment restrictions determine $\mu_r$, $\mu_\pi$, $\sigma_m$, and $\sigma_u$ analytically. The GFC liquidity adjustment is a common additive intercept in real yields during 2008--2009. Long-horizon CPI and Treasury-bill survey errors are fixed at 0.10 percentage point; real-yield errors are fixed at 0.10 percentage point in normal periods and 0.30 percentage point before 2004, during 2008--2009, and from March 2020 through February 2021.
 \end{tablenotes}
 \end{threeparttable}
 \end{table}

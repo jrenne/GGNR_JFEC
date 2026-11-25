@@ -1,2 +1,0 @@
-"requested_draws","successful_draws","total_attempts","acceptance_rate","cores","elapsed_seconds","seed","parameter_covariance_rank","parameter_count","conditional_on_exact_moment_targets","reconstructed_loglik","saved_loglik","filter_method","iekf_trigger_probability","iekf_steps"
-1000,1000,1124,0.889679715302491,4,48.884,1986,32,32,TRUE,56233.7136714607,56233.7136714607,"IEKF",0,2

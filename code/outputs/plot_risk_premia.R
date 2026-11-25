@@ -101,11 +101,10 @@ colors <- c(model5 = "black", model10 = "grey35",
 draw_panel <- function(model5, model10, benchmark1, survey, title,
                        benchmark1_label, benchmark2 = NULL,
                        benchmark2_label = NULL) {
-  all_values <- c(model5, model10, benchmark1, benchmark2, survey)
+  all_values <- c(model10, benchmark1, benchmark2, survey)
   limits <- range(c(0, all_values), finite = TRUE)
-  plot(data$dates, model5, type = "l", lwd = 2.5, col = colors["model5"],
+  plot(data$dates, model10, type = "l", lwd = 2.5, col = colors["model5"],
        xlab = "", ylab = "percentage points", main = title, ylim = limits)
-  lines(data$dates, model10, lwd = 2.5, lty = 2, col = colors["model10"])
   lines(data$dates, benchmark1, lwd = 2.2, lty = 3, col = colors["benchmark1"])
   if (!is.null(benchmark2)) {
     lines(data$dates, benchmark2, lwd = 2.2, lty = 4, col = colors["benchmark2"])
@@ -113,9 +112,9 @@ draw_panel <- function(model5, model10, benchmark1, survey, title,
   points(data$dates, survey, pch = 4, cex = 1.20, lwd = 2.5,
          col = colors["survey"])
   abline(h = 0, col = "grey55", lwd = 1.2)
-  labels <- c("Model 5y", "Model 10y", benchmark1_label)
-  line_types <- c(1, 2, 3)
-  line_colors <- colors[c("model5", "model10", "benchmark1")]
+  labels <- c("Model 10y", benchmark1_label)
+  line_types <- c(1, 3)
+  line_colors <- colors[c("model5", "benchmark1")]
   if (!is.null(benchmark2)) {
     labels <- c(labels, benchmark2_label)
     line_types <- c(line_types, 4)

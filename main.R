@@ -25,7 +25,7 @@ if (run_estimation) {
 }
 if (run_polishing) {
   ggnr_run_stage("polish_model.R")
-  Sys.setenv(GGNR_START_FILE = Sys.getenv("GGNR_POLISH_OUTPUT", "estimates/polished.rds"))
+  Sys.setenv(GGNR_START_FILE = Sys.getenv("GGNR_POLISH_OUTPUT", "estimates/refined.rds"))
   run_inference <- run_filtering_exercise <- run_uncertainty_exercise <- TRUE
   run_mundell_exercise <- TRUE
 }
@@ -55,6 +55,7 @@ ggnr_run_stage("code/outputs/make_filtering_table.R")
 ggnr_run_stage("code/outputs/make_parameter_coverage_tables.R")
 ggnr_run_stage("code/outputs/plot_uncertainty.R")
 if (run_checks) {
+  ggnr_run_stage("code/validation/estimate_stationarity.R")
   ggnr_run_stage("code/validation/delta_alignment.R")
   ggnr_run_stage("code/validation/covariance_alignment.R")
   ggnr_run_stage("code/validation/parameter_coverage_alignment.R")

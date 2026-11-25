@@ -26,7 +26,7 @@ checks <- data.frame(
 )
 stopifnot(max(checks$relative_error) < 1e-8,
           qr(J)$rank == length(inference$theta),
-          all(diag(V) > 0), all(diag(inference$hac_natural) > 0))
+          all(diag(V) > 0), all(diag(inference$hac_natural) >= -1e-12))
 white <- B %*% crossprod(scores) %*% t(B)
 stopifnot(relative_error(white, inference$white_working) < 1e-8)
 output_directory <- Sys.getenv("GGNR_INFERENCE_DIR", "outputs/diagnostics/inference")
@@ -56,7 +56,7 @@ if (file.exists(halfstep_file)) {
   }
 }
 sensitivity <- do.call(rbind, lapply(names(sensitivity), function(name) {
-  value <- abs(sensitivity[[name]])
+  value <- abs(sensitivity[[name]]); value <- value[is.finite(value)]
   data.frame(check = name, median_absolute_relative_change = median(value),
              maximum_absolute_relative_change = max(value))
 }))

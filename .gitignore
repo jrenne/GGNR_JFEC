@@ -5,3 +5,7 @@
 *~
 *.bak
 *.tmp
+
+*.o
+*.so
+*.dylib

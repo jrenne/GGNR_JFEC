@@ -32,7 +32,7 @@ Online Appendix. Other intermediate outputs may also be written.
 | Figure OA.2 | Inflation and survey fit | `fig_macro_fit.pdf` |
 | Figure OA.3 | Nominal yield fit | `fig_nominal_yield_fit.pdf` |
 | Figure OA.4 | Real yield fit | `fig_real_yield_fit.pdf` |
-| Figure OA.5 | Real-rate trend omitting 2020 observations | `rstar_omit2020.pdf` |
+| Figure OA.5 | Real-rate trend omitting 2020 observations, with parameters fixed | `rstar_omit2020.pdf` |
 | Figure OA.6 | Historical real-yield sensitivity | `pre2004_real_yield_sensitivity.pdf` |
 | Figure OA.7 | Persistent-state uncertainty | `state_uncertainty_bands.pdf` |
 | Figure OA.8 | Ten-year premium uncertainty | `premium_uncertainty_bands.pdf` |
@@ -53,7 +53,6 @@ Online Appendix. Other intermediate outputs may also be written.
 | `risk_premia/` | Model premia and comparison diagnostics |
 | `omit_2020/`, `liquid_tips/` | Robustness paths and comparisons |
 | `mundell_tobin/` | Archived simulated conditional correlations |
-| `hamilton_reference/` | Nonlinear Gaussian-draw diagnostic; not used for published uncertainty bands |
 
 The default build redraws figures and rewrites tables. It reuses the archived
 estimates and expensive numerical exercises. For fresh calculations, see

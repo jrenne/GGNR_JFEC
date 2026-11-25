@@ -1,6 +1,6 @@
 "check","relative_error"
-"independent Toeplitz HAC",1.97825278438829e-16
-"direct versus scaled signed inverse",4.37965635979864e-14
-"independent covariance",4.71355579846535e-12
-"sum versus mean normalization",1.13522512811519e-12
-"economic-coordinate covariance",4.71355579844632e-12
+"independent Toeplitz HAC",2.13332959998506e-16
+"direct versus scaled signed inverse",1.14274908979972e-14
+"independent covariance",3.94628774103012e-13
+"sum versus mean normalization",1.88099535947117e-13
+"economic-coordinate covariance",3.93934884712621e-13

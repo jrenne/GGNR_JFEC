@@ -2,16 +2,13 @@ source("code/outputs/graphics_helpers.R")
 # Robustness check that treats every observation in calendar 2020 as missing.
 
 source("code/model/iekf.R")
+source("code/model/fast_interface.R")
 if (!requireNamespace("Rcpp", quietly = TRUE)) stop("Rcpp is required.")
 Rcpp::sourceCpp("code/model/pricing_helpers.cpp")
 
 baseline_file <- Sys.getenv(
   "GGNR_BASELINE_FILE",
   Sys.getenv("GGNR_START_FILE", "estimates/baseline_r2.rds")
-)
-robustness_file <- Sys.getenv(
-  "GGNR_ROBUSTNESS_FILE",
-  "estimates/omit_2020.rds"
 )
 output_directory <- Sys.getenv(
   "GGNR_COVID_DIR",
@@ -20,38 +17,25 @@ output_directory <- Sys.getenv(
 dir.create(output_directory, recursive = TRUE, showWarnings = FALSE)
 
 baseline <- readRDS(baseline_file)
-robustness <- readRDS(robustness_file)
+# Omit measurements only: retain all baseline parameters and moment targets.
+# This is a conditional filtering check, not a new parameter estimate.
 data_full <- load_paper_data()
 short_full <- load_observed_real_short_rate_inputs(data_full$dates)
-data_omit <- data_full
-short_omit <- short_full
-omit <- data_full$dates >= as.Date("2020-01-01") &
-  data_full$dates <= as.Date("2020-12-31")
-for (name in c("macro", "yields_n", "yields_r", "surv_infexp",
-               "surv_gdpexp", "surv_tbexp")) {
-  data_omit[[name]][omit, ] <- NaN
-}
-data_omit$core_inflation[omit] <- NaN
-data_omit$any_survey_release[omit] <- FALSE
-data_omit$any_nonmonthly_release[omit] <- FALSE
-short_omit[omit] <- NaN
-hfi_none <- list(standardized = rep(NaN, length(data_full$dates)))
-
-run_saved_filter <- function(data, short_rate, estimate) {
-  run_kf_reduced_hfi_no_output(
-    data, estimate$parameters, hfi_none, short_rate,
-    filter_method = if (is.null(estimate$filter_method)) "EKF" else
-      estimate$filter_method,
-    iekf_trigger_probability = if (is.null(estimate$iekf_trigger_probability))
-      0 else estimate$iekf_trigger_probability,
-    iekf_steps = if (is.null(estimate$iekf_steps)) 2L else estimate$iekf_steps
-  )
-}
-fit_baseline <- run_saved_filter(data_full, short_full, baseline)
-fit_omit <- run_saved_filter(data_omit, short_omit, robustness)
-if (abs(fit_omit$fval - robustness$final_loglik) > 1e-6) {
-  stop("The omitted-2020 filter does not reproduce the saved likelihood.")
-}
+omit <- format(data_full$dates, "%Y") == "2020"
+fit_baseline <- evaluate_filter_fast(data_full, baseline$parameters,
+  filter_method=baseline$filter_method, trigger=baseline$iekf_trigger_probability,
+  steps=baseline$iekf_steps)
+obj <- fit_baseline$objects
+Y <- cbind(data_full$macro[,2],data_full$macro[,4],data_full$surv_infexp,
+  data_full$surv_tbexp,data_full$yields_n,data_full$yields_r)
+Y[omit,] <- NaN
+mu <- as.vector(solve(diag(6)-obj$Phi,obj$Mu))
+fit_omit <- fast_iekf_cpp(obj,Y,data_full$mats_n,data_full$mats_r,data_full$hstep_t,
+  mu,stationary_covariance_no_output(obj),TRUE,baseline$iekf_trigger_probability,
+  baseline$iekf_steps,NULL,FALSE)
+colnames(fit_omit$x_upd) <- reduced_hfi_no_output_states
+fit_omit$objects <- obj
+robustness <- baseline
 
 calculate_premia <- function(fit) {
   states <- t(fit$x_upd)
@@ -143,7 +127,7 @@ draw_panel <- function(mask, panel_title, legend_position = NULL) {
   abline(h = 0, col = "grey70", lwd = 1.0)
   grid(col = "grey90", lty = 1)
   if (!is.null(legend_position)) legend(
-    legend_position, c("Baseline IEKF", "All 2020 observations omitted"),
+    legend_position, c("Baseline IEKF", "2020 omitted; parameters fixed"),
     col = c("black", "grey50"), lty = c(1, 2), lwd = c(2.6, 2.4),
     cex = 1.05, bg = adjustcolor("white", alpha.f = 0.90)
   )
@@ -166,7 +150,7 @@ ggnr_pdf(file.path(figure_directory, "rstar_omit2020.pdf"),
 draw_figure()
 ggnr_dev_off()
 
-cat("Omitted-2020 robustness summary:\n")
+cat("Omitted-2020 conditional filtering summary:\n")
 print(summary)
 print(rstar_2020)
 print(parameter_comparison)

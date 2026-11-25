@@ -3,13 +3,21 @@
 Adam Golinski, Sophie Guilloux-Nefussi, and Jean-Paul Renne  
 JFEC second revision, November 2026
 
+Current empirical specification: February 1992–August 2026 (415 months), 30 free
+parameters, PTR measurement-error SD fixed at 0.20 annualized percentage point
+(20 basis points), no additional CPI measurement disturbance, and no PCE–CPI
+adjustment. The transitory economic inflation shock remains in the model.
+Four sample moments determine two unconditional means and two innovation scales;
+they do not add four estimated likelihood coordinates. The cyclical VAR is
+restricted by covariance stationarity, without a separate singular-value bound.
+
 ## Start here
 
-Extract the archive and open `GGNR_JFEC.Rproj` in RStudio. Install the two
+Extract the archive and open `GGNR_JFEC.Rproj` in RStudio. Install the three
 required R packages once, if necessary:
 
 ```r
-install.packages(c("Rcpp", "ggplot2"), repos = "https://cloud.r-project.org")
+install.packages(c("Rcpp", "RcppArmadillo", "ggplot2"), repos = "https://cloud.r-project.org")
 ```
 
 Then open `main.R` and click **Source**, or run this in the R console:
@@ -27,8 +35,8 @@ paper and Online Appendix, and runs the numerical consistency checks.** It
 uses the frozen data, supplied R2 parameter estimate, and archived simulation
 results. It does not download data, estimate parameters, or generate new
 Monte Carlo samples. Figures are drawn by the code rather than copied from
-finished manuscript files. The last clean default run took 18.3 seconds on
-the tested machine; compilation and other hardware can change this time.
+finished manuscript files. Runtime for the refreshed clean default run is recorded in REPLICATION_CHECKS.txt;
+compilation and hardware can change it.
 
 Outputs are written to `outputs/tables/`, `outputs/figures/`, and
 `outputs/diagnostics/`. The final console message is `Replication completed
@@ -37,7 +45,7 @@ for the correspondence with every paper table and figure.
 
 ## Software requirements
 
-- R, with `Rcpp` and `ggplot2`, and a C++ compiler configured for R. Model
+- R, with `Rcpp`, `RcppArmadillo` and `ggplot2`, and a C++ compiler configured for R. Model
   helpers are compiled through Rcpp when a script first needs them.
 - On macOS, install Apple's Command Line Tools if needed; see
   [R's macOS tools instructions](https://mac.r-project.org/tools/).
@@ -63,20 +71,21 @@ and requires no API key.
 
 | Location | Contents |
 | --- | --- |
-| `data/input/paper_data.rds` | Frozen paper data, October 1968–August 2026 |
+| `data/input/paper_data.rds` | Frozen source data; application February 1992–August 2026 |
 | `data/external/` | Archived comparison series and source workbooks |
 | `estimates/baseline_r2.rds` | Published R2 empirical parameter estimate |
 | `estimates/baseline.rds` | Preserved first-revision empirical estimate |
 | `estimates/start_values.rds` | Starting values for fresh estimation |
-| `estimates/omit_2020.rds`, `estimates/liquid_tips_only.rds` | Supplied robustness estimates |
+| `estimates/liquid_tips_only.rds` | Supplied liquid-TIPS robustness estimate |
 | `code/model/` | Pricing, state-space model, and filters, including Rcpp helpers |
 | `code/inference/`, `code/validation/` | Uncertainty calculations, experiments, and audits |
 | `code/outputs/` | Table and figure builders |
 | `outputs/diagnostics/` | Archived numerical exercises and generated diagnostics |
 
-The default scripts use `baseline_r2.rds`. The supplied robustness variants
-are separate estimates; their filtered paths and comparisons are rebuilt
-against the R2 baseline. The individual simulations, seeds, optimizer retries,
+The default scripts use `baseline_r2.rds`. The liquid-TIPS robustness variant is a separate estimate. The omit-2020
+exercise instead holds all baseline parameters and the four moment targets
+fixed and removes only those measurement updates. It is a filtering sensitivity
+check, not a claim of robustness under parameter re-estimation. The individual simulations, seeds, optimizer retries,
 and summaries are included in the parameter-coverage archive.
 
 ## Optional fresh calculations
@@ -97,8 +106,8 @@ All switches below default to `FALSE`; `run_checks` defaults to `TRUE`.
 | Switch | Calculation requested |
 | --- | --- |
 | `run_estimation` | Fresh empirical estimation and robustness estimation; refresh dependent empirical exercises |
-| `run_polishing` | Local refinement of all 32 empirical coordinates; refresh dependent empirical exercises |
-| `run_robustness_estimation` | Re-estimate the omit-2020 and liquid-TIPS variants |
+| `run_polishing` | Local refinement of all 30 empirical coordinates; refresh dependent empirical exercises |
+| `run_robustness_estimation` | Run optional omit-2020 and liquid-TIPS re-estimations (published omit-2020 plot keeps parameters fixed) |
 | `run_inference` | Recompute the empirical Hessian and score-based covariance |
 | `run_filtering_exercise` | Generate 200 known-parameter samples and compare EKF, IEKF, and UKF |
 | `run_uncertainty_exercise` | Recompute local delta-method state and premium bands |
@@ -187,7 +196,7 @@ separate optional calculations; the default build reuses their archives.
 ### Fresh empirical estimation or new data
 
 `estimate_model.R` writes `estimates/reestimated.rds`; `polish_model.R` writes
-`estimates/polished.rds`. Both preserve `baseline.rds` and `baseline_r2.rds`.
+`estimates/refined.rds`. Both preserve `baseline.rds` and `baseline_r2.rds`.
 The latter script uses the original likelihood criterion, with a default
 180-second budget configurable through `GGNR_POLISH_SECONDS` and
 `GGNR_POLISH_MAXEVAL`. Full estimation can take longer and may reach a
@@ -233,3 +242,9 @@ Sys.unsetenv("GGNR_MC_REPLAY")
 Authors' code uses the MIT [License](LICENSE). Third-party data retain their
 providers' terms; their sources and construction are listed in
 [data/README.md](data/README.md).
+
+The supplied start_values.rds uses the adopted estimate as a warm start for
+a fast local rerun. Optional estimation does not certify a global optimum;
+check scores and curvature before interpreting a fresh candidate. The preserved
+R1 baseline.rds is historical; rerunning that older specification requires its
+archived R1 code.

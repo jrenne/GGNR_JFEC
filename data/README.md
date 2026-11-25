@@ -65,3 +65,9 @@ Source: https://www.newyorkfed.org/research/policy/rstar.
 The data and comparison series remain subject to the terms of their original
 providers. The MIT license in the repository applies to the authors' code, not
 to third-party data.
+
+Current estimation uses February 1992–August 2026 (415 months). Earlier source
+observations remain in the frozen input file for provenance; load_paper_data()
+selects the estimation interval consistently for all empirical routines.
+The archived submitted_trends.csv contains the exact curves used in the
+previously submitted figure and is a comparison series, not an estimation input.

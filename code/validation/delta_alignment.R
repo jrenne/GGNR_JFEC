@@ -4,7 +4,7 @@ directory <- Sys.getenv("GGNR_UNCERTAINTY_DIR", "outputs/diagnostics/uncertainty
 z <- readRDS(file.path(directory, "delta_uncertainty.rds"))
 v <- z$parameter_covariance
 e <- eigen((v + t(v)) / 2, symmetric = TRUE)
-stopifnot(min(e$values) > 0, length(z$theta) == 32L)
+stopifnot(min(e$values) > 0, length(z$theta) == 30L)
 root <- sweep(e$vectors, 2, sqrt(e$values), "*")
 errors <- numeric(ncol(z$point))
 for (j in seq_len(ncol(z$point))) {

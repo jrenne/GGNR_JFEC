@@ -65,22 +65,22 @@ lines <- c(
   "\\begin{table}[!htbp]", "\\centering",
   "\\caption{Parameter estimates and Hessian-based sandwich standard errors}",
   "\\label{tab:parameters}", "\\begin{threeparttable}", "\\small",
-  "\\renewcommand{\\arraystretch}{0.88}",
+  "\\renewcommand{\\arraystretch}{0.85}",
   "\\begin{tabular*}{\\textwidth}{@{\\extracolsep{\\fill}}lrrr}",
   "\\toprule", "Parameter & Estimate & Hessian & Hessian--HAC \\\\", "\\midrule"
 )
 for (g in names(groups)) {
   lines <- c(lines, paste0("\\multicolumn{4}{l}{\\textit{", g, "}} \\\\"))
   for (i in groups[[g]]) lines <- c(lines, paste0(
-    labels[[inf$parameter[i]]], " & ", fmt(inf$estimate[i]), significance(inf$estimate[i], inf$hac_sandwich_se[i]), " & ",
-    fmt(inf$qmle_white_se[i]), " & ", fmt(inf$hac_sandwich_se[i]), " \\\\"
+    labels[[inf$parameter[i]]], " & ", fmt(inf$estimate[i]), if(inf$parameter[i] %in% c("sigma_inf_pp", "sigma_ptr_pp")) "" else significance(inf$estimate[i], inf$hac_sandwich_se[i]), " & ",
+    if(inf$parameter[i] %in% c("sigma_inf_pp", "sigma_ptr_pp")) "--" else fmt(inf$qmle_white_se[i]), " & ", if(inf$parameter[i] %in% c("sigma_inf_pp", "sigma_ptr_pp")) "--" else fmt(inf$hac_sandwich_se[i]), " \\\\"
   ))
   if (g != tail(names(groups),1)) lines <- c(lines, "\\addlinespace")
 }
 uncertainty_note <- paste0(
-  "Both columns use the full signed local Hessian inverse. The Hessian column uses the contemporaneous score outer product in the sandwich; ",
+  "Both columns use the inverse negative Hessian. The Hessian column uses the contemporaneous score outer product in the sandwich; ",
   "Hessian--HAC uses the Bartlett long-run covariance of centered monthly scores with 12 lags. ",
-  "Numerical details and local-approximation limitations are documented in the Online Appendix."
+  "Inference is conditional on the four empirical moment targets and fixed calibrations. The additional CPI measurement-error standard deviation is zero and the PTR measurement-error standard deviation is fixed at 0.20 percentage point; dashes indicate fixed values."
 )
 
 lines <- c(
@@ -89,7 +89,7 @@ lines <- c(
   paste0(
     "\\item Notes: Innovation and measurement-error standard deviations are expressed in annualized percentage points where indicated. ",
     uncertainty_note,
-    " $^*$, $^{**}$, and $^{***}$ denote nominal two-sided normal-approximation significance at 10\\%, 5\\%, and 1\\%, using local Hessian--HAC standard errors and a zero null. These markers are not unit-root tests; for scale parameters, a zero null is on the boundary and the markers are descriptive. The four unconditional moment restrictions determine $\\mu_r$, $\\mu_\\pi$, $\\sigma_m$, and $\\sigma_u$ analytically. The GFC liquidity adjustment is a common additive intercept in real yields during 2008--2009. Long-horizon CPI and Treasury-bill survey errors are fixed at 0.10 percentage point; real-yield errors are fixed at 0.10 percentage point in normal periods and 0.30 percentage point before 2004, during 2008--2009, and from March 2020 through February 2021."
+    " $^*$, $^{**}$, and $^{***}$ denote nominal two-sided normal-approximation significance at 10\\%, 5\\%, and 1\\%, using local Hessian--HAC standard errors and a zero null. Markers are descriptive for scale parameters and are not unit-root tests. The four unconditional moment restrictions determine $\\mu_r$, $\\mu_\\pi$, $\\sigma_m$, and $\\sigma_u$ analytically. The GFC liquidity adjustment is a common additive intercept in real yields during 2008--2009. Long-horizon CPI and Treasury-bill survey errors are fixed at 0.10 percentage point; real-yield errors are fixed at 0.10 percentage point in normal periods and 0.30 percentage point before 2004, during 2008--2009, and from March 2020 through February 2021."
   ),
   "\\end{tablenotes}", "\\end{threeparttable}", "\\end{table}"
 )
