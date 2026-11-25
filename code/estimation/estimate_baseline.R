@@ -2,7 +2,7 @@
 source("code/inference/parameterization.R")
 input<-Sys.getenv("GGNR_START_FILE","estimates/start_values.rds")
 output<-Sys.getenv("GGNR_OUTPUT_FILE","estimates/reestimated.rds")
-if(normalizePath(output,mustWork=FALSE)%in%normalizePath(c("estimates/baseline.rds","estimates/baseline_r2.rds"),mustWork=FALSE))
+if(normalizePath(output,mustWork=FALSE)%in%normalizePath(c("estimates/baseline_r2.rds","estimates/start_values.rds"),mustWork=FALSE))
  stop("Choose a new output file; archived estimates are read-only.")
 budget<-as.integer(Sys.getenv("GGNR_EVAL_BUDGET","2000"))
 method<-match.arg(Sys.getenv("GGNR_OPTIMIZER","nlminb"),c("nlminb","Nelder-Mead","bobyqa"))

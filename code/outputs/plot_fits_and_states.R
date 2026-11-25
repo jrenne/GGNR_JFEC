@@ -51,13 +51,13 @@ draw_fit <- function(observed, fitted, panel_title, legend_position = NULL) {
   observed <- 1200 * observed
   fitted <- 1200 * fitted
   limits <- range(c(observed, fitted), finite = TRUE)
-  plot(dates, fitted, type = "l", col = colors["model"], lwd = 2.4,
+  ggnr_plot(dates, fitted, type = "l", col = colors["model"], lwd = 2.4,
        xlab = "", ylab = "Percentage points",
        main = panel_title, ylim = limits)
   points(dates, observed, col = colors["observed"], pch = 16, cex = 0.68)
   grid(col = "grey88", lty = 1)
   if (!is.null(legend_position)) {
-    legend(legend_position, c("Model", "Observed"),
+    ggnr_legend(legend_position, legend = c("Model", "Observed"),
            col = colors[c("model", "observed")], lty = c(1, NA),
            pch = c(NA, 16), pt.cex = 1.25, lwd = c(2.4, NA), cex = 1.05,
            bg = adjustcolor("white", alpha.f = 0.9))
@@ -113,7 +113,7 @@ benchmark_hlw <- benchmark$HLW[match(dates, benchmark$date)]
 r_star <- 1200 * states[, "r_star"]
 pi_star <- 1200 * states[, "pi_star"]
 w <- states[, "w"]
-# Pointwise local delta-method bands include filtering and parameter uncertainty.
+# Pointwise simulation bands include filtering and parameter uncertainty.
 uncertainty_directory <- Sys.getenv(
   "GGNR_UNCERTAINTY_DIR", "outputs/diagnostics/uncertainty"
 )
@@ -137,7 +137,7 @@ for (i in 1:3) {
   upper <- state_bands[[paste0(prefix, "_p975")]]
   comparison <- if (i == 1) c(benchmark_lw, benchmark_hlw) else
     if (i == 2) 1200 * data$macro[, 4] else numeric()
-  plot(dates, value, type = "n", xlab = "", ylab = unit,
+  ggnr_plot(dates, value, type = "n", xlab = "", ylab = unit,
        ylim = range(c(lower, upper, comparison), finite = TRUE),
        main = paste0("(", letters[i], ") ", title))
   polygon(c(dates, rev(dates)), c(lower, rev(upper)), col = "grey87", border = NA)
@@ -151,14 +151,14 @@ for (i in 1:3) {
     lines(dates[j], benchmark_lw[j], col = "grey45", lty = 3, lwd = 1.7)
     j <- is.finite(benchmark_hlw)
     lines(dates[j], benchmark_hlw[j], col = "grey25", lty = 2, lwd = 1.7)
-    legend("bottomleft", c("Model", "HLW", "LW", "68%", "95%"),
+    ggnr_legend("bottomleft", legend = c("Model", "HLW", "LW", "68%", "95%"),
            col = c("black", "grey25", "grey45", "grey65", "grey87"),
            lty = c(1, 2, 3, NA, NA), pch = c(NA, NA, NA, 15, 15),
            lwd = 1.7, cex = 0.94, bg = "white", ncol = 5)
   }
   if (i == 2) {
     points(dates, 1200 * data$macro[, 4], col = "grey35", pch = 16, cex = 0.45)
-    legend("topright", c("Model", "PTR"), col = c("black", "grey35"),
+    ggnr_legend("topright", legend = c("Model", "PTR"), col = c("black", "grey35"),
            lty = c(1, NA), pch = c(NA, 16), cex = 0.94, bg = "white")
   }
 }
@@ -170,13 +170,13 @@ shadow <- 1200 * (states[, "r_star"] + states[, "pi_star"] + states[, "m"])
 ggnr_pdf(file.path(output_directory, "fig_shadow_rate.pdf"),
     width = 10, height = 5.2, useDingbats = FALSE)
 publication_par(mar = c(3.8, 4.8, 1, 0.8))
-plot(dates, shadow, type = "l", lwd = 2.4, col = colors["model"],
+ggnr_plot(dates, shadow, type = "l", lwd = 2.4, col = colors["model"],
      xlab = "", ylab = "Percent",
      ylim = range(c(shadow, effective), finite = TRUE))
 lines(dates, effective, col = colors["observed"], lwd = 2.0, lty = 2)
 abline(h = 0, col = "grey65", lwd = 0.8)
 grid(col = "grey90", lty = 1)
-legend("topright", c("Model shadow rate", "Effective federal funds rate"),
+ggnr_legend("topright", legend = c("Model shadow rate", "Effective federal funds rate"),
        col = colors[c("model", "observed")], lty = c(1, 2), lwd = c(2.4, 2.0),
        cex = 1.08, bg = adjustcolor("white", alpha.f = 0.9))
 ggnr_dev_off()

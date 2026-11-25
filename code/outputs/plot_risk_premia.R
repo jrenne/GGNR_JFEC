@@ -103,7 +103,7 @@ draw_panel <- function(model5, model10, benchmark1, survey, title,
                        benchmark2_label = NULL) {
   all_values <- c(model10, benchmark1, benchmark2, survey)
   limits <- range(c(0, all_values), finite = TRUE)
-  plot(data$dates, model10, type = "l", lwd = 2.5, col = colors["model5"],
+  ggnr_plot(data$dates, model10, type = "l", lwd = 2.5, col = colors["model5"],
        xlab = "", ylab = "percentage points", main = title, ylim = limits)
   lines(data$dates, benchmark1, lwd = 2.2, lty = 3, col = colors["benchmark1"])
   if (!is.null(benchmark2)) {
@@ -121,7 +121,7 @@ draw_panel <- function(model5, model10, benchmark1, survey, title,
     line_colors <- c(line_colors, colors["benchmark2"])
   }
   labels <- c(labels, "Survey model-free 10y")
-  legend("topright", legend = labels, ncol = 2,
+  ggnr_legend("topright",legend = labels, ncol = 2,
          col = c(line_colors, colors["survey"]),
          lty = c(line_types, NA), pch = c(rep(NA, length(line_types)), 4),
          lwd = c(rep(2.3, length(line_types)), 2.5), pt.cex = 1.25, cex = 1.02,

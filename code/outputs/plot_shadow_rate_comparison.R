@@ -29,7 +29,7 @@ draw_panel <- function(from, to, panel_title, show_legend = FALSE) {
     z[c("shadow_rate", "wu_xia", "krippner", "effective_federal_funds_rate")],
     na.rm = TRUE
   )
-  plot(
+  ggnr_plot(
     z$date, z$shadow_rate, type = "l", col = "black", lwd = 2.8,
     xlab = "", ylab = "Percent", main = panel_title, ylim = limits
   )
@@ -42,9 +42,9 @@ draw_panel <- function(from, to, panel_title, show_legend = FALSE) {
   abline(h = 0, col = "grey78", lwd = 0.8)
   grid(col = "grey90", lty = 1)
   if (show_legend) {
-    legend(
+    ggnr_legend(
       "bottomleft",
-      c("Model", "Wu--Xia", "Krippner", "Effective federal funds rate"),
+      legend = c("Model", "Wu--Xia", "Krippner", "Effective federal funds rate"),
       col = c("black", "grey35", "grey60", "grey75"),
       lty = c(1, 2, 3, 4), lwd = c(2.8, 2.2, 2.2, 1.8),
       cex = 1.02, bg = adjustcolor("white", alpha.f = 0.90)

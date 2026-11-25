@@ -33,7 +33,7 @@ Rcpp::List fast_iekf_cpp(Rcpp::List obj, Rcpp::NumericMatrix observations,
    Bcum=co["B_X_cum"], Bcpi=co["B_X_cum_pi"];
  vec sigma_r=Rcpp::as<vec>(obj["sigma_r_t"]), real_offset=Rcpp::as<vec>(obj["real_yield_offset_t"]);
  const int T=Y.n_rows,K=Phi.n_rows,Ns=GS.n_rows,Nt=horizons.size(),Nn=mats_n.size(),Nr=mats_r.size(),N=Y.n_cols;
- if(N!=2+Ns+Nt+Nn+Nr || K!=6)Rcpp::stop("Unsupported observation layout in private accelerator");
+ if(N!=2+Ns+Nt+Nn+Nr || K!=6)Rcpp::stop("Unsupported observation layout in the compiled filter");
  double lb=Rcpp::as<double>(pars["r_lb"]);
  vec baseR(N);
  baseR[0]=std::pow(Rcpp::as<double>(pars["sigma_inf"]),2);

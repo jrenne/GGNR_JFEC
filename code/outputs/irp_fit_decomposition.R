@@ -66,7 +66,7 @@ png(output_file, width = 1800, height = 1600, res = 180)
 par(mfrow = c(2, 1), mar = c(3.2, 4.2, 2.5, 1))
 limits <- range(c(observed_irp[observed], fitted_observable_irp[observed],
                   structural_irp[observed]), finite = TRUE)
-plot(data$dates[observed], observed_irp[observed], type = "p", pch = 4,
+ggnr_plot(data$dates[observed], observed_irp[observed], type = "p", pch = 4,
      col = "#222222", xlab = "", ylab = "percentage points", ylim = limits,
      main = "10-year inflation risk premium: observed and fitted")
 lines(data$dates[observed], fitted_observable_irp[observed],
@@ -74,20 +74,20 @@ lines(data$dates[observed], fitted_observable_irp[observed],
 lines(data$dates[observed], structural_irp[observed],
       col = "#0072B2", lwd = 1.2, lty = 2)
 abline(h = 0, col = "grey55", lwd = 0.7)
-legend("topright", c("Survey-implied", "From fitted observables", "Structural"),
+ggnr_legend("topright", legend = c("Survey-implied", "From fitted observables", "Structural"),
        col = c("#222222", "#D55E00", "#0072B2"),
        pch = c(4, NA, NA), lty = c(NA, 1, 2), lwd = c(NA, 1.5, 1.2),
        cex = 0.8, bg = adjustcolor("white", alpha.f = 0.85))
 
-plot(data$dates[observed], identity_error[observed], type = "l",
+ggnr_plot(data$dates[observed], identity_error[observed], type = "l",
      col = "#222222", lwd = 1.5, xlab = "", ylab = "percentage points",
      main = "Exact IRP fit-error decomposition")
 lines(data$dates[observed], nominal_error[observed], col = "#009E73", lwd = 1)
 lines(data$dates[observed], -real_error[observed], col = "#D55E00", lwd = 1)
 lines(data$dates[observed], -cpi10_error[observed], col = "#0072B2", lwd = 1)
 abline(h = 0, col = "grey55", lwd = 0.7)
-legend("bottomleft",
-       c("Total IRP error", "Nominal-yield contribution",
+ggnr_legend("bottomleft",
+       legend = c("Total IRP error", "Nominal-yield contribution",
          "Real-yield contribution", "CPI10 contribution"),
        col = c("#222222", "#009E73", "#D55E00", "#0072B2"),
        lty = 1, lwd = c(1.5, 1, 1, 1), cex = 0.8,

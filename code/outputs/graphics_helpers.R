@@ -72,3 +72,38 @@ ggnr_dev_off <- function() {
   }
   invisible(value)
 }
+
+# Reserve a separate top margin for legends, outside the plotting rectangle.
+ggnr_panel <- function(fun, args) {
+  main <- args$main; args$main <- NULL
+  mar <- par("mar"); mar[3] <- max(mar[3], if (is.null(main)) 3.4 else 6.4)
+  par(mar = mar)
+  value <- do.call(fun, args)
+  if (!is.null(main)) graphics::title(main = main, line = mar[3] - 1.6)
+  invisible(value)
+}
+ggnr_plot <- function(...) ggnr_panel(graphics::plot, list(...))
+ggnr_matplot <- function(...) ggnr_panel(graphics::matplot, list(...))
+ggnr_legend <- function(x, ..., y = NULL) {
+  args <- list(...); args$x <- args$y <- args$inset <- args$plot <- NULL
+  args$xpd <- NA; args$bty <- "n"; args$bg <- NULL; args$box.col <- NULL
+  n <- length(args$legend)
+  if (is.null(args$legend) && length(args)) {
+    args$legend <- args[[1]]; args[[1]] <- NULL; n <- length(args$legend)
+  }
+  if (is.null(args$cex)) args$cex <- 1
+  usr <- par("usr"); width <- diff(usr[1:2])
+  requested <- if (is.null(args$ncol)) min(3L, n) else args$ncol
+  for (cols in seq.int(requested, 1L)) {
+    args$ncol <- cols
+    box <- do.call(graphics::legend, c(list(x = "top", plot = FALSE), args))
+    if (box$rect$w <= .98 * width) break
+  }
+  if (box$rect$w > .98 * width) {
+    args$cex <- args$cex * .98 * width / box$rect$w
+    box <- do.call(graphics::legend, c(list(x = "top", plot = FALSE), args))
+  }
+  gap <- diff(usr[3:4]) * .10 / par("pin")[2]
+  do.call(graphics::legend, c(list(x = mean(usr[1:2]),
+    y = usr[4] + box$rect$h + gap, xjust = .5, yjust = 1), args))
+}

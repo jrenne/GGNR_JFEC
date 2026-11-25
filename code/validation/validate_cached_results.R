@@ -5,7 +5,7 @@ inference <- readRDS(file.path(Sys.getenv("GGNR_INFERENCE_DIR",
 filtering <- readRDS(file.path(Sys.getenv("GGNR_FILTER_OUTPUT", "outputs/diagnostics/filtering"),
                                "filtering_accuracy.rds"))
 uncertainty_directory <- Sys.getenv("GGNR_UNCERTAINTY_DIR", "outputs/diagnostics/uncertainty")
-uncertainty <- readRDS(file.path(uncertainty_directory, "delta_uncertainty.rds"))
+uncertainty <- readRDS(file.path(uncertainty_directory, "nonlinear_uncertainty.rds"))
 ggnr_check_provenance(inference, "Empirical inference")
 ggnr_check_provenance(filtering, "Filtering simulation")
 ggnr_check_provenance(uncertainty, "Parameter-and-filtering uncertainty")

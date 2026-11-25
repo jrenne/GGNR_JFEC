@@ -1,5 +1,5 @@
 source("code/outputs/graphics_helpers.R")
-# Diagnostic plots for local delta-method filtering-plus-parameter uncertainty.
+# Pointwise simulation bands combining filtering and parameter uncertainty.
 
 input_directory <- Sys.getenv(
   "GGNR_UNCERTAINTY_DIR",
@@ -16,7 +16,7 @@ draw_band <- function(data, prefix, title, zero = FALSE) {
   y95 <- c(data[[paste0(prefix, "_p025")]],
            data[[paste0(prefix, "_p975")]])
   limits <- range(y95[is.finite(y95)])
-  plot(data$date, data[[paste0(prefix, "_estimate")]], type = "n",
+  ggnr_plot(data$date, data[[paste0(prefix, "_estimate")]], type = "n",
        xlab = "", ylab = "percentage points", main = title, ylim = limits)
   polygon(c(data$date, rev(data$date)),
           c(data[[paste0(prefix, "_p025")]],
@@ -37,7 +37,7 @@ draw_state_figure <- function() {
       mgp = c(2.8, 0.8, 0), tcl = -0.3)
   draw_band(states, "r_star", expression(paste("(a) Real-rate trend ", r*"*")),
             zero = TRUE)
-  legend("topright", c("Estimate", "68% interval", "95% interval"),
+  ggnr_legend("topright", legend = c("Estimate", "68% interval", "95% interval"),
          lty = c(1, NA, NA), lwd = c(2.5, NA, NA),
          pch = c(NA, 15, 15), pt.cex = c(NA, 2.0, 2.0),
          col = c("black", "grey65", "grey85"), bty = "o", box.col = "white",
@@ -52,7 +52,7 @@ draw_premium_figure <- function() {
       mgp = c(2.8, 0.8, 0), tcl = -0.3)
   par(cex = 1) # Restore full-size text after the multi-panel layout.
   draw_band(premia, "nominal_10y", "(a) 10-year nominal term premium", TRUE)
-  legend("topright", c("Estimate", "68% interval", "95% interval"),
+  ggnr_legend("topright", legend = c("Estimate", "68% interval", "95% interval"),
          lty = c(1, NA, NA), lwd = c(2.5, NA, NA),
          pch = c(NA, 15, 15), pt.cex = c(NA, 2.0, 2.0),
          col = c("black", "grey65", "grey85"), bty = "o", box.col = "white",

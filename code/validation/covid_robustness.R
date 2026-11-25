@@ -119,14 +119,14 @@ write.csv(parameter_comparison,
 draw_panel <- function(mask, panel_title, legend_position = NULL) {
   limits <- range(c(state_baseline[mask, "r_star"],
                     state_omit[mask, "r_star"]), finite = TRUE)
-  plot(dates[mask], state_baseline[mask, "r_star"], type = "l",
+  ggnr_plot(dates[mask], state_baseline[mask, "r_star"], type = "l",
        col = "black", lwd = 2.6, xlab = "", ylab = "Percentage points",
        main = panel_title, ylim = limits)
   lines(dates[mask], state_omit[mask, "r_star"], col = "grey50",
         lwd = 2.4, lty = 2)
   abline(h = 0, col = "grey70", lwd = 1.0)
   grid(col = "grey90", lty = 1)
-  if (!is.null(legend_position)) legend(
+  if (!is.null(legend_position)) ggnr_legend(
     legend_position, c("Baseline IEKF", "2020 omitted; parameters fixed"),
     col = c("black", "grey50"), lty = c(1, 2), lwd = c(2.6, 2.4),
     cex = 1.05, bg = adjustcolor("white", alpha.f = 0.90)

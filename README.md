@@ -1,131 +1,138 @@
-# Replication package: The Shadow-Rate Model: Let's Make it Real
+# Replication: The Shadow-Rate Model: Let's Make it Real
 
-Adam Golinski, Sophie Guilloux-Nefussi, and Jean-Paul Renne  
-JFEC second revision, November 2026
+Adam Golinski, Sophie Guilloux-Nefussi, and Jean-Paul Renne. JFEC second revision.
 
-Current empirical specification: February 1992–August 2026 (415 months), 30 free
-parameters, PTR measurement-error SD fixed at 0.20 annualized percentage point
-(20 basis points), no additional CPI measurement disturbance, and no PCE–CPI
-adjustment. The transitory economic inflation shock remains in the model.
-Four sample moments determine two unconditional means and two innovation scales;
-they do not add four estimated likelihood coordinates. The cyclical VAR is
-restricted by covariance stationarity, without a separate singular-value bound.
+The application uses February 1992–August 2026 (415 months), 30 free parameters,
+and a PTR measurement-error standard deviation fixed at 20 annualized basis
+points. Four empirical moments determine two means and two innovation scales.
+The economic transitory inflation shock is retained; there is no additional
+CPI measurement disturbance or PCE–CPI adjustment.
 
-## Start here
+## Run the published results
 
-Extract the archive and open `GGNR_JFEC.Rproj` in RStudio. Install the three
-required R packages once, if necessary:
+Extract the package, open `GGNR_JFEC.Rproj` in RStudio, and install:
 
 ```r
-install.packages(c("Rcpp", "RcppArmadillo", "ggplot2"), repos = "https://cloud.r-project.org")
+install.packages(c("Rcpp", "RcppArmadillo", "ggplot2"))
 ```
 
-Then open `main.R` and click **Source**, or run this in the R console:
+From the package root, open `main.R` and click **Source**, or run:
 
 ```r
 source("main.R")
 ```
 
-Alternatively, run `Rscript main.R` in a terminal from the extracted
-`GGNR_JFEC` directory. All commands in this README use that working directory;
-`file.exists("main.R")` should return `TRUE` in R.
+The terminal equivalent is `Rscript main.R`. The default run rebuilds all
+**eight tables and 17 figures** and checks their numerical consistency. It
+uses the frozen data, supplied estimates and numerical archives; it does not
+download data, re-estimate parameters or generate new simulations. Every
+figure is redrawn by code. Results appear under `outputs/`; the final message
+is `Replication completed in ... seconds; results are in outputs/.`
 
-**The default run regenerates the eight tables and 17 figures used in the
-paper and Online Appendix, and runs the numerical consistency checks.** It
-uses the frozen data, supplied R2 parameter estimate, and archived simulation
-results. It does not download data, estimate parameters, or generate new
-Monte Carlo samples. Figures are drawn by the code rather than copied from
-finished manuscript files. Runtime for the refreshed clean default run is recorded in REPLICATION_CHECKS.txt;
-compilation and hardware can change it.
+See [the output index](docs/OUTPUTS.md) for the correspondence with the paper
+and Online Appendix, and [REPLICATION_CHECKS.txt](REPLICATION_CHECKS.txt) for
+verified runtimes and checks.
 
-Outputs are written to `outputs/tables/`, `outputs/figures/`, and
-`outputs/diagnostics/`. The final console message is `Replication completed
-in ... seconds; results are in outputs/.` See [the output index](docs/OUTPUTS.md)
-for the correspondence with every paper table and figure.
+## Requirements
 
-## Software requirements
+- R, the three packages above, and a C++ compiler configured for R. Rcpp
+  compiles the model helpers on first use. On macOS use Apple's Command Line
+  Tools; on Windows use the Rtools release matching R; on Linux use a working
+  R development toolchain.
+- PDF export needs working Cairo support in R or Poppler's `pdftocairo` on
+  `PATH`. If necessary, set `GGNR_PDF_CONVERTER` to the executable's full path.
+  The exported PDFs have embedded fonts.
+- Optional: `nloptr` for BOBYQA estimation, and `readxl` for rebuilding source
+  data or comparison series. Neither is needed for default replication.
 
-- R, with `Rcpp`, `RcppArmadillo` and `ggplot2`, and a C++ compiler configured for R. Model
-  helpers are compiled through Rcpp when a script first needs them.
-- On macOS, install Apple's Command Line Tools if needed; see
-  [R's macOS tools instructions](https://mac.r-project.org/tools/).
-  On Windows, install the [Rtools version matching your R release](https://cran.r-project.org/bin/windows/Rtools/).
-  On Linux, use a working R development toolchain with a C++ compiler and `make`.
-- PDF export requires a working Cairo device in R or Poppler's `pdftocairo`
-  executable on `PATH`. If it is installed elsewhere, set
-  `GGNR_PDF_CONVERTER` to its full executable path before running the scripts.
-  This provides embedded fonts without any machine-specific paths in the code.
-- Optional packages: `nloptr` for empirical estimation or local refinement;
-  `readxl` for database reconstruction or rebuilding the LW/HLW comparison
-  series. Install them with `install.packages(c("nloptr", "readxl"))` if needed.
-  Internet access is needed for package installation and optional data updates.
+The package was tested with R 4.5.1 on Apple Silicon macOS. Windows and Linux
+were not independently tested. After installation, default replication is
+offline and needs no API key, LaTeX, Python or MATLAB.
 
-The tested environment was R 4.5.1 on Apple Silicon macOS, with Rcpp 1.1.0,
-ggplot2 4.0.1, nloptr 2.2.1, and readxl 1.4.5. These are recorded versions,
-not enforced version pins. Windows and Linux were not independently tested.
-No LaTeX installation is needed to generate the `.tex` tables or PDF figures;
-no Python or MATLAB is required. After setup, default replication is offline
-and requires no API key.
-
-## What is supplied
+## Files
 
 | Location | Contents |
 | --- | --- |
-| `data/input/paper_data.rds` | Frozen source data; application February 1992–August 2026 |
-| `data/external/` | Archived comparison series and source workbooks |
-| `estimates/baseline_r2.rds` | Published R2 empirical parameter estimate |
-| `estimates/baseline.rds` | Preserved first-revision empirical estimate |
-| `estimates/start_values.rds` | Starting values for fresh estimation |
-| `estimates/liquid_tips_only.rds` | Supplied liquid-TIPS robustness estimate |
-| `code/model/` | Pricing, state-space model, and filters, including Rcpp helpers |
-| `code/inference/`, `code/validation/` | Uncertainty calculations, experiments, and audits |
-| `code/outputs/` | Table and figure builders |
-| `outputs/diagnostics/` | Archived numerical exercises and generated diagnostics |
+| `main.R` | Default replication and optional calculation switches |
+| `data/input/` | Frozen source data |
+| `data/external/` | Frozen external comparison series |
+| `estimates/baseline_r2.rds` | Published empirical estimate |
+| `estimates/start_values.rds` | Same estimate as a warm start for optional estimation |
+| `estimates/liquid_tips_only.rds` | Liquid-TIPS sensitivity estimate |
+| `code/model/` | Model, pricing and filters |
+| `code/inference/` | Parameter covariance and uncertainty propagation |
+| `code/validation/` | Simulations and numerical checks |
+| `code/outputs/` | Figure and table builders |
+| `outputs/diagnostics/` | Numerical archives used by the default build |
 
-The default scripts use `baseline_r2.rds`. The liquid-TIPS robustness variant is a separate estimate. The omit-2020
-exercise instead holds all baseline parameters and the four moment targets
-fixed and removes only those measurement updates. It is a filtering sensitivity
-check, not a claim of robustness under parameter re-estimation. The individual simulations, seeds, optimizer retries,
-and summaries are included in the parameter-coverage archive.
+The omit-2020 figure keeps baseline parameters and all four moment targets
+fixed, removing only that year's measurement updates. The liquid-TIPS
+exercise is a separate parameter re-estimation. Method and data details are
+in [the inference notes](docs/INFERENCE_AND_DESIGN.md) and
+[the data documentation](data/README.md).
 
 ## Optional fresh calculations
 
-Work in a separate copy of the package when changing estimates or the model.
-The driver rebuilds outputs in place; fresh empirical exercises replace their
-default diagnostic files unless a different output directory is selected.
-The examples below keep fresh exercise results in separate directories.
-They do not change the published tables until you explicitly select them for
-an output build.
+Use a separate package copy for fresh estimation or changing the model. Edit
+switches **inside `main.R`**; setting them in the console first has no effect.
+All calculation switches default to `FALSE`; `run_checks` is `TRUE`.
 
-### Driver switches
-
-Edit the switches **inside `main.R`** before sourcing it. Assigning a switch
-in the console first has no effect because `main.R` sets its own values.
-All switches below default to `FALSE`; `run_checks` defaults to `TRUE`.
-
-| Switch | Calculation requested |
+| Switch | Calculation |
 | --- | --- |
-| `run_estimation` | Fresh empirical estimation and robustness estimation; refresh dependent empirical exercises |
-| `run_polishing` | Local refinement of all 30 empirical coordinates; refresh dependent empirical exercises |
-| `run_robustness_estimation` | Run optional omit-2020 and liquid-TIPS re-estimations (published omit-2020 plot keeps parameters fixed) |
-| `run_inference` | Recompute the empirical Hessian and score-based covariance |
-| `run_filtering_exercise` | Generate 200 known-parameter samples and compare EKF, IEKF, and UKF |
-| `run_uncertainty_exercise` | Recompute local delta-method state and premium bands |
-| `run_parameter_exercise` | Resume the parameter-coverage archive, targeting 500 samples per design |
-| `run_pricing_exercise` | Recompute the high-precision Monte Carlo pricing benchmarks |
-| `run_mundell_exercise` | Recompute simulated conditional Mundell–Tobin correlations |
+| `run_estimation` | Estimate the empirical model and refresh dependent results |
+| `run_refinement` | Refine all free coordinates and refresh dependent results |
+| `run_robustness_estimation` | Optional alternative-sample re-estimations |
+| `run_inference` | Recompute the Hessian and score covariance |
+| `run_uncertainty_exercise` | Regenerate nonlinear state and premium bands |
+| `run_filtering_exercise` | Generate 200 known-parameter filtering samples |
+| `run_parameter_exercise` | Resume the two 500-sample parameter experiments |
+| `run_pricing_exercise` | Regenerate high-precision pricing benchmarks |
+| `run_mundell_exercise` | Regenerate conditional-correlation simulations |
 
-`run_estimation` and `run_polishing` automatically refresh inference, filtering,
-uncertainty bands, and conditional correlations. Only `run_estimation` also
-automatically re-estimates the robustness variants. Default cache checks
-compare fingerprints of the selected estimate, frozen data, and model code
-and stop on a mismatch. The small-model parameter experiment has its own
-fixed design and does not depend on the empirical estimate.
+Fresh estimation and refinement automatically refresh dependent empirical
+inference, filtering, bands and conditional correlations. Full estimation
+also re-estimates the robustness variants. These can take longer than the
+short standalone uncertainty exercise. A finite optimizer exit message does
+not replace convergence and Hessian checks.
 
-### Parameter coverage: 500 reference + 500 higher-ZLB samples
+### Empirical covariance and nonlinear bands
 
-Setting `run_parameter_exercise = TRUE` reuses completed samples in the
-supplied archive. **To generate new samples, select a new output directory:**
+To recompute into separate directories:
+
+```r
+Sys.setenv(GGNR_INFERENCE_DIR = "outputs/diagnostics/inference_fresh",
+           GGNR_HESSIAN_CORES = "4")
+source("code/inference/hessian_sandwich.R")
+Sys.unsetenv(c("GGNR_INFERENCE_DIR", "GGNR_HESSIAN_CORES"))
+
+Sys.setenv(GGNR_UNCERTAINTY_DIR = "outputs/diagnostics/uncertainty_fresh",
+           GGNR_UNCERTAINTY_DRAWS = "5000", GGNR_UNCERTAINTY_CORES = "4")
+source("code/inference/nonlinear_uncertainty.R")
+Sys.unsetenv(c("GGNR_UNCERTAINTY_DIR", "GGNR_UNCERTAINTY_DRAWS",
+              "GGNR_UNCERTAINTY_CORES"))
+```
+
+The second block uses the supplied covariance. To use a fresh covariance,
+keep `GGNR_INFERENCE_DIR` set to its directory until that block is complete.
+`GGNR_HESSIAN_STEP` defaults to 0.001 in balanced coordinates;
+`GGNR_HAC_LAGS` defaults to 12. The band simulation uses five independent
+batches, 5,000 admissible joint parameter draws in total, and seed 20261126
+for the first batch. The draw count must be a multiple of five and at least
+100. `GGNR_UNCERTAINTY_SEED` selects a different first-batch seed.
+
+All free parameters and their cross-covariances are retained. Each accepted
+draw reruns the original nonlinear filter, draws conditional states and
+reprices bonds. Only draws violating model admissibility are rejected;
+other numerical failures stop the calculation. The output reports proposals,
+rejection reasons and batch-based Monte Carlo precision. These are pointwise,
+covariance-based uncertainty bands conditional on the moment targets,
+calibrations and admissibility, without an established finite-sample coverage
+guarantee. They are not a bootstrap.
+
+### Parameter Monte Carlo: 500 reference + 500 higher-ZLB samples
+
+The supplied archive already contains all published replications. To generate
+fresh samples rather than reuse them:
 
 ```r
 Sys.setenv(GGNR_MC_DIR = "outputs/diagnostics/parameter_coverage_fresh",
@@ -134,90 +141,12 @@ source("code/validation/parameter_coverage.R")
 Sys.unsetenv(c("GGNR_MC_DIR", "GGNR_MC_CASE", "GGNR_MC_REPS", "GGNR_MC_CORES"))
 ```
 
-This generates 500 samples in the reference design and 500 in the appendix
-sensitivity with a higher frequency of the zero lower bound. Select
-`reference_15` or `higher_zlb_50` instead of `all` to run just one design.
-The runner saves completed batches and resumes them when called again with
-the same directory and settings. Restore environment variables as shown
-before running the published table builders, which expect both full designs.
-
-Pricing, filtering, and generation use C++ through Rcpp; five-coordinate
-estimation uses R's `optim`. A fresh 500-sample design took about three minutes
-on four processes (about six minutes for both designs). See
-[the design and inference notes](docs/INFERENCE_AND_DESIGN.md) for the data
-generator, intervals, optimizer retries, and interpretation of coverage.
-
-### Empirical Hessian and uncertainty bands
-
-Recompute the Hessian and score covariance at the supplied estimate:
-
-```r
-Sys.setenv(GGNR_INFERENCE_DIR = "outputs/diagnostics/inference_fresh",
-           GGNR_HESSIAN_CORES = "4")
-source("code/inference/hessian_sandwich.R")
-Sys.unsetenv(c("GGNR_INFERENCE_DIR", "GGNR_HESSIAN_CORES"))
-```
-
-This took about 98 seconds on four processes. `GGNR_HESSIAN_STEP` selects the
-relative derivative step (default `1e-4`); `GGNR_HAC_LAGS` selects the score
-covariance lag length (default 12). Recompute bands using the supplied
-covariance, including the automatic half-step derivative check:
-
-```r
-Sys.setenv(GGNR_UNCERTAINTY_DIR = "outputs/diagnostics/uncertainty_fresh",
-           GGNR_DELTA_CORES = "4")
-source("code/inference/delta_uncertainty.R")
-Sys.unsetenv(c("GGNR_UNCERTAINTY_DIR", "GGNR_DELTA_CORES"))
-```
-
-The band calculation took about 13 seconds including its check. To use the
-fresh covariance instead, set `GGNR_INFERENCE_DIR` to its directory before
-this block and unset it afterwards. `GGNR_DELTA_STEP` defaults to `1e-5`.
-These are local numerical inference calculations; the Hessian's curvature
-and the derivative conventions are documented in
-[the technical notes](docs/INFERENCE_AND_DESIGN.md).
-
-### Known-parameter filtering comparison
-
-```r
-Sys.setenv(GGNR_FILTER_OUTPUT = "outputs/diagnostics/filtering_fresh",
-           GGNR_FILTER_REPS = "200", GGNR_FILTER_CORES = "4")
-source("code/validation/filtering_accuracy.R")
-Sys.unsetenv(c("GGNR_FILTER_OUTPUT", "GGNR_FILTER_REPS", "GGNR_FILTER_CORES"))
-```
-
-This exercise compares EKF, IEKF, and UKF with known latent states under the
-empirical six-state specification; parameters are not re-estimated. It took
-about 52 seconds on four processes. All timings are illustrative. On Windows,
-these parallel exercises fall back to serial execution and can take longer.
-The full pricing benchmark and conditional-correlation simulations are
-separate optional calculations; the default build reuses their archives.
-
-### Fresh empirical estimation or new data
-
-`estimate_model.R` writes `estimates/reestimated.rds`; `polish_model.R` writes
-`estimates/refined.rds`. Both preserve `baseline.rds` and `baseline_r2.rds`.
-The latter script uses the original likelihood criterion, with a default
-180-second budget configurable through `GGNR_POLISH_SECONDS` and
-`GGNR_POLISH_MAXEVAL`. Full estimation can take longer and may reach a
-different local solution. `GGNR_START_FILE` selects an alternative estimate
-for downstream empirical scripts. Changing it requires recomputing the
-dependent empirical caches before rebuilding outputs.
-
-`estimate_robustness.R` replaces `omit_2020.rds` and `liquid_tips_only.rds` in
-the working copy. Use a separate package copy for a full fresh estimation.
-See [the data documentation](data/README.md) for sources and optional updating.
-`prepare_data.R` writes a new vintage to `data/updated/updated_data.rds`;
-it leaves the frozen input and default analysis unchanged. An analysis using
-that new vintage requires explicitly changing the data input and re-estimating.
-
-## Checks and troubleshooting
-
-The default driver checks cache identity, covariance algebra and normalization,
-delta-method bands, Monte Carlo statistics and denominators, pricing timing,
-R/C++ agreement, yield derivatives, and survey integration. The recorded
-validation is in [REPLICATION_CHECKS.txt](REPLICATION_CHECKS.txt). To additionally
-re-estimate three archived parameter samples and compare their stored results:
+The runner saves completed samples and resumes them when called with the same
+directory and design. Select `reference_15` or `higher_zlb_50` instead of `all`
+for one design. The illustrative five-parameter model is independent of the
+empirical estimate; no bias correction is applied. A fresh 500-sample design
+took about three minutes on four processes. To independently re-estimate
+three archived samples without changing the archive:
 
 ```r
 Sys.setenv(GGNR_MC_REPLAY = "true")
@@ -225,26 +154,30 @@ source("code/validation/parameter_coverage_alignment.R")
 Sys.unsetenv("GGNR_MC_REPLAY")
 ```
 
-- **File not found:** open the extracted project and run from its root,
-  containing `main.R`, `data/`, `code/`, and `estimates/`.
-- **Package or compilation error:** install the packages and the R-compatible
-  compiler described above; Rcpp needs that compiler even for default replication.
-- **PDF/font error:** check the Cairo device or `Sys.which("pdftocairo")`;
-  alternatively set `GGNR_PDF_CONVERTER` to a working executable.
-- **Cache mismatch:** restore the supplied estimate/data/model, or refresh the
-  dependent exercises for the intended specification. Disabling `run_checks`
-  does not disable the provenance checks.
-- **Unexpected exercise or output selection:** start a clean R session and
-  check for `GGNR_*` environment variables left from optional runs.
+### Estimation, filtering and data updates
 
-## License
+`estimate_model.R` writes `estimates/reestimated.rds`; `refine_model.R` writes
+`estimates/refined.rds`, preserving the published estimate. The refinement
+budget is controlled by `GGNR_REFINE_SECONDS` and `GGNR_REFINE_MAXEVAL`.
+`GGNR_START_FILE` selects a different estimate for subsequent calculations;
+refresh all dependent numerical archives before building outputs with it.
+
+For fresh known-parameter filtering, set `GGNR_FILTER_OUTPUT` to a new
+directory, `GGNR_FILTER_REPS` to 200 and `GGNR_FILTER_CORES` to 4, then source
+`code/validation/filtering_accuracy.R`. Unset these variables afterwards.
+Optional data reconstruction uses `prepare_data.R`, which writes a new vintage
+to `data/updated/` and preserves the frozen data. See `data/README.md`.
+
+## Troubleshooting
+
+- Run from the package root, containing `main.R`, `code/` and `data/`.
+- For compilation errors, check the R-compatible C++ compiler and dependencies.
+- For PDF errors, check Cairo or `Sys.which("pdftocairo")`.
+- For cache mismatches, restore the supplied estimate/data/code or refresh the
+  dependent calculation. Disabling `run_checks` does not disable provenance.
+- Use a clean R session and unset optional `GGNR_*` variables before replaying
+  the published results. Unix supports parallel execution; Windows falls back
+  to serial execution for the R multiprocessing stages.
 
 Authors' code uses the MIT [License](LICENSE). Third-party data retain their
-providers' terms; their sources and construction are listed in
-[data/README.md](data/README.md).
-
-The supplied start_values.rds uses the adopted estimate as a warm start for
-a fast local rerun. Optional estimation does not certify a global optimum;
-check scores and curvature before interpreting a fresh candidate. The preserved
-R1 baseline.rds is historical; rerunning that older specification requires its
-archived R1 code.
+providers' terms; sources are documented in `data/README.md`.

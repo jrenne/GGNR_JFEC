@@ -1,45 +1,44 @@
-REPLICATION CHECKS — 25 NOVEMBER 2026 — PTR20 ADOPTION
+JFEC R2 REPLICATION CHECKS — 25 NOVEMBER 2026
 
-Application: February 1992–August 2026, 415 monthly observations, 30 free
-coordinates. PTR measurement-error SD is fixed at 0.20 annualized percentage
-point. Additional CPI measurement disturbance is zero; the economic transitory
-inflation shock remains. Four empirical moment targets and the other fixed
-measurement-error calibrations are held fixed for conditional inference.
+Specification: February 1992–August 2026, 415 months, 30 free coordinates;
+PTR measurement-error SD fixed at 20 annualized basis points. Four empirical
+moment targets are held fixed for inference. The published point estimate
+and parameter standard errors are unchanged by the uncertainty simulation.
 
-The portable Rcpp/RcppArmadillo filter reproduces the independent R filter
-and the adopted empirical point. Two independent finite-difference checks of
-the original IEKF criterion give maximum normalized scores around 2e-6 with
-no lower-bound formula switches. The full negative Hessian is positive definite
-at the documented linearly rescaled differentiation steps; no eigenvalues or
-directions are removed. Full-Jacobian White and 12-lag Bartlett/HAC covariances,
-sum/mean normalization, Toeplitz reconstruction and step-size checks pass.
-The half-step parameter-SE comparison has a maximum change of about 1.2%.
+Parameter covariance: full inverse of the positive-definite negative Hessian,
+White and 12-lag Bartlett/HAC score covariances, full economic-coordinate
+Jacobian. Normalization, score covariance, derivative-step sensitivity and
+local stationarity checks pass. No parameter-covariance directions are removed.
 
-State/premium bands combine conditional filtering variance with the full
-30-coordinate parameter covariance using a local delta approximation. Independent
-spectral variance reconstruction, pricing gradients and a derivative half-step
-check pass. These are pointwise local normal approximations conditional on the
-empirical moments and calibrations, not finite-sample coverage guarantees.
+Uncertainty bands: 5,000 admissible joint parameter draws in five independent
+batches, nonlinear refiltering, conditional state draws and repricing. The
+simulation uses 5,316 proposals; 316 violate the explicit moment or stationarity
+restrictions. It therefore conditions the Gaussian parameter approximation on
+the admissible domain. Other numerical errors stop the calculation. All moment
+targets and calibrations remain fixed. The archived reference draws can be
+replayed independently. Production code reproduces the independently checked
+bands. Batch-based Monte Carlo standard errors for mean ten-year premium-band
+widths are about 1.6–2.7%. Full generation took about 99 seconds on four processes.
+These are pointwise covariance-based bands, not a bootstrap or an established
+finite-sample coverage guarantee.
 
-Known-state filtering simulation refreshed: 200 samples of 415 months using
-current parameters and observation masks, with independent R/C++ checks.
-Published parameter coverage: 500 reference and 500 higher-ZLB samples. All
-1,000 estimates and intervals are retained. Three independent sample replays
-reproduce the archived estimates and standard errors. No bias correction.
-The separate pricing benchmark is retained and analytically repriced.
+Monte Carlo archives: 200 known-parameter six-state filtering samples; 500
+reference and 500 higher-ZLB samples for the illustrative parameter experiment.
+All parameter-experiment samples and optimizer retries are retained, without
+bias correction. Default checks verify design, results and denominators. An
+optional replay re-estimates three archived samples without altering them.
 
-Liquid-TIPS sensitivity re-estimated with 29 free coordinates and zero GFC
-intercept. The published omit-2020 exercise is a conditional filtering check:
-all parameters and moment targets stay fixed and the 2020 updates are omitted.
-It is not presented as a converged alternative-sample re-estimation.
+Other checks: independent R/C++ filter agreement, analytical pricing identities,
+yield derivatives, pricing timing and survey integration. The liquid-TIPS
+sensitivity uses a separate estimate. The omit-2020 figure omits measurement
+updates at fixed baseline parameters and moment targets.
 
-A clean copy rebuilt all eight tables and 17 figures with every default
-consistency check in 29.6 seconds, including first C++ compilation in that
-clean environment. A warm build took about 14 seconds. The optional estimator
-was smoke-tested with a deliberately tiny evaluation budget; that limited
-smoke-test candidate is not used for results and is not claimed to converge.
+Graphics: legends occupy reserved margins outside the plotting rectangles.
+PDF fonts are embedded. All 17 published figures are visually inspected;
+all eight table files are regenerated. The default build reuses the supplied
+estimates and simulation archives and completes in about 13 seconds when warm.
+A final extraction of the distributed ZIP is independently run and checked.
 
-PDFs are regenerated with embedded fonts. The paper's red/black modes contain
-identical text; eight full-width tables and isolated numeric updates remain
-black. Figures and table cells are compared with the clean replication output.
-The model and software provide local checks, not a proof of a global maximum.
+The distribution contains the current empirical specification, its published
+sensitivity estimate, and the material required to reproduce the reported
+numerical exercises and checks.

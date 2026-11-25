@@ -24,7 +24,7 @@ run_parameter_replication <- function(binding, replication,
   seed <- 20310100L + replication
   set.seed(seed)
   # Freeze these submitted-estimate measurement magnitudes. Reloading them from
-  # a polished empirical estimate would silently change the Monte Carlo design.
+  # an empirical estimate would silently change the Monte Carlo design.
   nominal_error <- 0.066301273257871
   inflation_error <- 2.18317492899878
   multipliers <- c(1, 0.10 / nominal_error, 1, 0.10 / nominal_error,

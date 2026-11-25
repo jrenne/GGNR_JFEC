@@ -127,13 +127,6 @@ experiments <- list(
     labels = c("s=0.25%, r*+pi*=4%", "s=0.25%, r*+pi*=0%"),
     title = "-25 bp short-rate innovation near the lower bound"
   ),
-  s0_rstar = list(
-    shock_bp = 25,
-    conditioning = rbind(shadow_rate = annual_shadow, r_star = annual_r_star),
-    values = list(c(0, 0.02), c(0, -0.02)),
-    labels = c("s=0%, r*=2%", "s=0%, r*=-2%"),
-    title = "25 bp short-rate innovation: alternative natural-rate states"
-  ),
   shadow_rate = list(
     shock_bp = 25,
     conditioning = rbind(shadow_rate = annual_shadow),
@@ -150,11 +143,11 @@ draw_yield_irf <- function(results, experiment) {
   limits <- range(c(0, all_values), finite = TRUE)
   padding <- 0.08 * diff(limits)
   limits <- limits + c(-padding, padding)
-  par(mfrow = c(1, 2), mar = c(4.6, 5.0, 3.6, 1),
+  par(mfrow = c(1, 2), mar = c(4.6, 5.0, 7.4, 1),
       cex.axis = 1.18, cex.lab = 1.22, cex.main = 1.18,
       font.main = 2, mgp = c(2.8, 0.85, 0), tcl = -0.35)
   for (market in c("nominal", "real")) {
-    plot(0:horizon, rep(0, horizon + 1L), type = "n", ylim = limits,
+    ggnr_plot(0:horizon, rep(0, horizon + 1L), type = "n", ylim = limits,
          xlab = "Months after innovation", ylab = "Percentage points",
          main = paste(tools::toTitleCase(market), "yields"))
     abline(h = 0, col = "grey65", lwd = 1.2)
@@ -175,7 +168,7 @@ draw_yield_irf <- function(results, experiment) {
       }
     }
     if (market == "real") {
-      legend("topright", legend_labels, col = colors[legend_colors],
+      ggnr_legend("topright", legend = legend_labels, col = colors[legend_colors],
              lty = legend_types, lwd = 2.6, cex = 1.00,
              bg = adjustcolor("white", alpha.f = 0.9))
     }
@@ -183,6 +176,7 @@ draw_yield_irf <- function(results, experiment) {
 }
 
 all_yield_results <- list()
+experiments <- experiments[c("shadow_rate", "s0_rpi", "s25_rpi")]
 for (name in names(experiments)) {
   experiment <- experiments[[name]]
   results <- lapply(experiment$values, function(values) {
@@ -201,50 +195,7 @@ for (name in names(experiments)) {
   ggnr_dev_off()
 }
 
-# Macro responses to a 25 bp innovation in the shadow rate.
-policy_impulse <- obj$Sigma_X[, "eps_m"]
-policy_impulse <- policy_impulse *
-  ((25 / 10000 / 12) / sum(obj$loadings$shadow_rate * policy_impulse))
-macro_loadings <- rbind(
-  inflation = obj$loadings$inflation,
-  shadow_rate = obj$loadings$shadow_rate,
-  real_rate = obj$loadings$shadow_rate - obj$loadings$inflation
-)
-macro_irf <- matrix(NA_real_, horizon + 1L, nrow(macro_loadings),
-                    dimnames = list(NULL, rownames(macro_loadings)))
-response <- policy_impulse
-for (h in 0:horizon) {
-  macro_irf[h + 1L, ] <- 1200 * as.numeric(macro_loadings %*% response)
-  response <- obj$Phi %*% response
-}
-write.csv(data.frame(horizon = 0:horizon, macro_irf),
-          file.path(output_directory, "irf_macro_policy.csv"), row.names = FALSE)
-
-draw_macro_irf <- function() {
-  colors <- c("#D55E00", "#0072B2", "#009E73")
-  titles <- c("Inflation", "Shadow short rate", "Ex-ante real short rate")
-  par(mfrow = c(1, 3), mar = c(4, 3.8, 3.2, 0.8))
-  for (j in seq_len(ncol(macro_irf))) {
-    plot(0:horizon, macro_irf[, j], type = "l", lwd = 1.7,
-         col = colors[j], xlab = "Months after innovation",
-         ylab = "Percentage points", main = titles[j])
-    abline(h = 0, col = "grey65", lwd = 0.8)
-    grid(col = "grey88", lty = 1)
-  }
-}
-
-png(file.path(output_directory, "irf_macro_policy.png"),
-    width = 1800, height = 720, res = 180)
-draw_macro_irf()
-ggnr_dev_off()
-ggnr_pdf(file.path(output_directory, "irf_macro_policy.pdf"),
-    width = 10, height = 4, useDingbats = FALSE)
-draw_macro_irf()
-ggnr_dev_off()
-
-saveRDS(
-  list(macro = macro_irf, yield_experiments = all_yield_results,
-       experiments = experiments, maturities = maturities),
-  file.path(output_directory, "irf_original_set.rds")
-)
-cat("Saved macro IRF and four conditional yield-IRF experiments.\n")
+saveRDS(list(yield_experiments = all_yield_results,
+  experiments = experiments, maturities = maturities),
+  file.path(output_directory, "yield_responses.rds"))
+cat("Saved the three published conditional yield-response figures.\n")

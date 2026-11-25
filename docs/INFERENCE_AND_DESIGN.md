@@ -33,26 +33,28 @@ uncertainty and uncertainty about the calibrations are not included in these
 conditional standard errors. The full Jacobian retains the dependence of the
 moment-derived scales on every free parameter.
 
-The primary state and premium bands use a first-order delta calculation,
-combining conditional filtering variance with D V D'. Here D is the total
-parameter derivative of each filtered state or premium, obtained by rerunning
-the filter in all 30 coordinates. For premia it includes direct pricing effects.
-The same complete Hessian--HAC covariance, including every cross-covariance,
-is retained. All 30 freely estimated coordinates and their cross-covariances are retained.
-The four empirical moment targets and measurement calibrations are fixed. Local branch conventions are
-used only for derivatives. Normal pointwise bands are centered on the estimated
-point estimate; finite-sample coverage is not established for these bands.
-The local approximation does not establish nominal finite-sample coverage or
-regular asymptotics at a lower-bound regime boundary.
+State and premium bands use nonlinear propagation of the full Hessian--HAC
+covariance. Five independently seeded batches provide 5,000 admissible joint
+Gaussian parameter draws in the estimation coordinates. Each draw reruns the
+original nonlinear IEKF, draws the full state from its conditional Gaussian
+filtering distribution at each date, and recomputes prices and premia.
+The pointwise 68% and 95% bands are empirical quantiles; the solid curve is
+the unchanged plug-in estimate and is not a simulated median.
 
-`code/inference/delta_uncertainty.R` recomputes these bands with an automatic half-step check. Measured runtime
-for this release is recorded in REPLICATION_CHECKS.txt. `GGNR_DELTA_CORES` and `GGNR_DELTA_STEP` select the core
-count and relative central-difference step (default 1e-5 times max(1, abs(theta))).
-Set `GGNR_UNCERTAINTY_DIR` to a separate directory for a fresh result.
-The archived half-step result is independently compared in
-`code/validation/delta_alignment.R`, which also reconstructs the full
-parameter variance through a spectral root and checks normal-band endpoints.
-Numerical step checks are written alongside the rebuilt results.
+The distribution is restricted to the model's admissible domain: covariance
+stationarity and positive innovation variances consistent with the four fixed
+moment targets. Rejected proposals and their reasons are recorded. Numerical
+errors other than these explicit domain violations stop the calculation.
+The Gaussian parameter covariance is not diagonalized by deleting directions:
+all positive eigenvalues and all cross-covariances are retained. Only tiny
+floating-point negative zeros in conditional *state* covariances are removed.
+
+The complete simulation is implemented in `code/inference/nonlinear_uncertainty.R`.
+The default build uses its compact archive and replays three stored draws
+independently in `code/validation/uncertainty_alignment.R`. Fresh generation
+records batch-based Monte Carlo precision as well as admissibility counts.
+The calculation preserves the empirical estimate and parameter standard errors;
+it is not a bootstrap or a nominal finite-sample coverage guarantee.
 
 ## Small-model parameter-coverage experiment
 

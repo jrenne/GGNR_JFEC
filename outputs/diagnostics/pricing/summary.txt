@@ -1,5 +1,5 @@
 Three-factor pricing-approximation validation
-Generated: 2026-11-25 20:23:48 UTC
+Generated: 2026-11-25 21:30:43 UTC
 Baseline Monte Carlo paths: 2000000 
 
  security maturity_months maturity mean_error_bp mean_abs_error_bp    rmse_bp

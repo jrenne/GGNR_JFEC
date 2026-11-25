@@ -155,7 +155,7 @@ draw_figure <- function() {
   colors <- c("black", "grey35", "grey65")
   correlation_range <- range(c(0, conditional_correlations), finite = TRUE)
   correlation_padding <- 0.06 * diff(correlation_range)
-  matplot(
+  ggnr_matplot(
     dates, conditional_correlations, type = "l",
     lwd = c(2.8, 2.6, 2.6), lty = c(1, 2, 3), col = colors,
     xlab = "", ylab = "Conditional correlation",
@@ -163,8 +163,8 @@ draw_figure <- function() {
   )
   abline(h = 0, col = "grey60", lwd = 1.2)
   grid(col = "grey88", lty = 1)
-  legend(
-    "bottomleft", maturity_labels,
+  ggnr_legend(
+    "bottomleft", legend = maturity_labels,
     col = colors, lty = c(1, 2, 3), lwd = c(2.8, 2.6, 2.6),
     bg = adjustcolor("white", alpha.f = 0.9), cex = 1.08
   )

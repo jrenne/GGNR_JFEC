@@ -13,6 +13,6 @@ checks <- lapply(c(1e-6,2e-7),function(h){
 })
 checks<-do.call(rbind,checks)
 if(max(checks$max_normalized_score)>1e-4||any(checks$formula_switches>0))
- stop("Local stationarity has not been verified at the selected point. Inspect the saved candidate before using inference.")
+ stop("Local stationarity has not been verified at the selected point. Inspect the saved estimate before using inference.")
 write.csv(checks,"outputs/diagnostics/inference/stationarity_checks.csv",row.names=FALSE)
 message("Original-criterion local stationarity verified at two steps, with no lower-bound formula switches.")

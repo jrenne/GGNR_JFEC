@@ -121,7 +121,7 @@ plot_panel <- function(item, title) {
   observed <- 1200 * item[[1]]
   fitted <- 1200 * item[[2]]
   limits <- range(c(observed, fitted), finite = TRUE)
-  plot(data$dates, fitted, type = "l", col = "#0072B2", lwd = 1.5,
+  ggnr_plot(data$dates, fitted, type = "l", col = "#0072B2", lwd = 1.5,
        xlab = "", ylab = "annualized percentage points", main = title,
        ylim = limits)
   points(data$dates, observed, col = "#D55E00", pch = 16, cex = 0.35)
@@ -143,7 +143,7 @@ for (j in seq_len(ncol(fit$x_upd))) {
   state_scale <- if (colnames(fit$x_upd)[j] == "w") 1 else 1200
   state_unit <- if (colnames(fit$x_upd)[j] == "w") "standardized units" else
     "annualized percentage points"
-  plot(data$dates, state_scale * fit$x_upd[, j], type = "l",
+  ggnr_plot(data$dates, state_scale * fit$x_upd[, j], type = "l",
        col = "#0072B2", lwd = 1, xlab = "", ylab = state_unit,
        main = gsub("_", " ", colnames(fit$x_upd)[j]))
 }

@@ -46,7 +46,7 @@ Online Appendix. Other intermediate outputs may also be written.
 | --- | --- |
 | `baseline/` | Empirical fit, filtered states, and model diagnostics |
 | `inference/` | Full Hessian, scores, HAC covariance, parameter standard errors, and sensitivity audits |
-| `uncertainty/` | Local delta-method bands, derivatives, and half-step comparison |
+| `uncertainty/` | Nonlinear simulation bands, batch diagnostics and reproducible draw references |
 | `filtering/` | Known-state filtering experiment and summary |
 | `parameter_coverage/` | Individual parameter Monte Carlo results, retries, and summaries for both 500-sample designs |
 | `pricing/` | Monte Carlo pricing benchmarks and approximation-error summaries |

@@ -2,7 +2,7 @@
 # Default: regenerate every published table/figure from the archived R2 estimate
 # and checked numerical caches. Set individual switches for fresh calculations.
 run_estimation <- FALSE
-run_polishing <- FALSE
+run_refinement <- FALSE
 run_robustness_estimation <- FALSE
 run_inference <- FALSE
 run_pricing_exercise <- FALSE
@@ -23,9 +23,9 @@ if (run_estimation) {
   run_inference <- run_filtering_exercise <- run_uncertainty_exercise <- TRUE
   run_robustness_estimation <- run_mundell_exercise <- TRUE
 }
-if (run_polishing) {
-  ggnr_run_stage("polish_model.R")
-  Sys.setenv(GGNR_START_FILE = Sys.getenv("GGNR_POLISH_OUTPUT", "estimates/refined.rds"))
+if (run_refinement) {
+  ggnr_run_stage("refine_model.R")
+  Sys.setenv(GGNR_START_FILE = Sys.getenv("GGNR_REFINE_OUTPUT", "estimates/refined.rds"))
   run_inference <- run_filtering_exercise <- run_uncertainty_exercise <- TRUE
   run_mundell_exercise <- TRUE
 }
@@ -33,7 +33,7 @@ if (run_robustness_estimation) ggnr_run_stage("estimate_robustness.R")
 # estimate_robustness restores the incoming environment, including the selected estimate.
 if (run_inference) ggnr_run_stage("code/inference/hessian_sandwich.R")
 if (run_filtering_exercise) ggnr_run_stage("code/validation/filtering_accuracy.R")
-if (run_uncertainty_exercise) ggnr_run_stage("code/inference/delta_uncertainty.R")
+if (run_uncertainty_exercise) ggnr_run_stage("code/inference/nonlinear_uncertainty.R")
 if (run_parameter_exercise) ggnr_run_stage("code/validation/parameter_coverage.R")
 ggnr_run_stage("code/validation/validate_cached_results.R")
 ggnr_run_stage("code/outputs/build_diagnostics.R")
@@ -56,7 +56,7 @@ ggnr_run_stage("code/outputs/make_parameter_coverage_tables.R")
 ggnr_run_stage("code/outputs/plot_uncertainty.R")
 if (run_checks) {
   ggnr_run_stage("code/validation/estimate_stationarity.R")
-  ggnr_run_stage("code/validation/delta_alignment.R")
+  ggnr_run_stage("code/validation/uncertainty_alignment.R")
   ggnr_run_stage("code/validation/covariance_alignment.R")
   ggnr_run_stage("code/validation/parameter_coverage_alignment.R")
   ggnr_run_stage("code/validation/pricing_formula_alignment.R")

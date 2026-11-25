@@ -209,7 +209,7 @@ draw_sensitivity_panel <- function(baseline_series, sensitivity_series,
   comparison_type <- match.arg(comparison_type)
   limits <- range(c(baseline_series, sensitivity_series, comparison_series),
                   finite = TRUE)
-  plot(dates, baseline_series, type = "n", ylim = limits, xlab = "",
+  ggnr_plot(dates, baseline_series, type = "n", ylim = limits, xlab = "",
        ylab = "Percentage points", main = panel_title)
   usr <- par("usr")
   rect(min(dates), usr[3], as.Date("2003-12-31"), usr[4],
@@ -237,12 +237,12 @@ draw_sensitivity_panel <- function(baseline_series, sensitivity_series,
       legend_pch <- c(legend_pch, if (comparison_type == "points") 4 else NA)
       legend_lwd <- c(legend_lwd, if (comparison_type == "line") 1.9 else 2.2)
     }
-    legend("topright", legend_labels, col = legend_colors,
+    ggnr_legend("topright", legend = legend_labels, col = legend_colors,
            lty = legend_lty, pch = legend_pch, lwd = legend_lwd,
            pt.cex = 1.15, cex = 1.03,
            bg = adjustcolor("white", alpha.f = 0.92))
   } else if (!is.null(comparison_series)) {
-    legend("topright", comparison_label, col = "grey65",
+    ggnr_legend("topright", legend = comparison_label, col = "grey65",
            lty = if (comparison_type == "line") 1 else NA,
            pch = if (comparison_type == "points") 4 else NA,
            lwd = if (comparison_type == "line") 1.9 else 2.2,
