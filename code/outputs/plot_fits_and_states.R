@@ -133,8 +133,8 @@ for (i in 1:3) {
   title <- c("Real-rate trend", "Inflation trend", "Price-of-risk state")[i]
   unit <- if (i < 3) "Annualized pp" else "Units"
   value <- state_bands[[paste0(prefix, "_estimate")]]
-  lower <- state_bands[[paste0(prefix, "_p025")]]
-  upper <- state_bands[[paste0(prefix, "_p975")]]
+  lower <- state_bands[[paste0(prefix, "_p05")]]
+  upper <- state_bands[[paste0(prefix, "_p95")]]
   comparison <- if (i == 1) c(benchmark_lw, benchmark_hlw) else
     if (i == 2) 1200 * data$macro[, 4] else numeric()
   ggnr_plot(dates, value, type = "n", xlab = "", ylab = unit,
@@ -151,7 +151,7 @@ for (i in 1:3) {
     lines(dates[j], benchmark_lw[j], col = "grey45", lty = 3, lwd = 1.7)
     j <- is.finite(benchmark_hlw)
     lines(dates[j], benchmark_hlw[j], col = "grey25", lty = 2, lwd = 1.7)
-    ggnr_legend("bottomleft", legend = c("Model", "HLW", "LW", "68%", "95%"),
+    ggnr_legend("bottomleft", legend = c("Model", "HLW", "LW", "68%", "90%"),
            col = c("black", "grey25", "grey45", "grey65", "grey87"),
            lty = c(1, 2, 3, NA, NA), pch = c(NA, NA, NA, 15, 15),
            lwd = 1.7, cex = 0.94, bg = "white", ncol = 5)

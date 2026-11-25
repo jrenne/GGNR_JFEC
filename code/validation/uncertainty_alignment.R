@@ -18,7 +18,7 @@ stopifnot(max(errors)<1e-7)
 for(item in c("state_bands","premium_bands")){
  bands<-z[[item]]
  for(n in sub("_estimate$","",names(bands)[grepl("_estimate$",names(bands))])){
-  q<-as.matrix(bands[paste0(n,"_",c("p025","p16","median","p84","p975"))]);stopifnot(all(is.finite(q)),all(q[,1]<=q[,2]),all(q[,2]<=q[,3]),all(q[,3]<=q[,4]),all(q[,4]<=q[,5]),max(abs(bands[[paste0(n,"_estimate")]]-z$point[,n]))<1e-12)
+  q<-as.matrix(bands[paste0(n,"_",c("p05","p16","median","p84","p95"))]);stopifnot(all(is.finite(q)),all(q[,1]<=q[,2]),all(q[,2]<=q[,3]),all(q[,3]<=q[,4]),all(q[,4]<=q[,5]),max(abs(bands[[paste0(n,"_estimate")]]-z$point[,n]))<1e-12)
  }
 }
 message("Nonlinear bands: joint covariance, admissibility counts, quantiles and three independent draw replays agree.")

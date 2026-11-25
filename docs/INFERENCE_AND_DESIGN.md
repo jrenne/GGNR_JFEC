@@ -38,8 +38,10 @@ covariance. Five independently seeded batches provide 5,000 admissible joint
 Gaussian parameter draws in the estimation coordinates. Each draw reruns the
 original nonlinear IEKF, draws the full state from its conditional Gaussian
 filtering distribution at each date, and recomputes prices and premia.
-The pointwise 68% and 95% bands are empirical quantiles; the solid curve is
-the unchanged plug-in estimate and is not a simulated median.
+The pointwise 68% and 90% bands are empirical quantiles; the solid curve is
+the unchanged plug-in estimate and is not a simulated median. Every filter
+starts from its stationary state distribution; early states therefore have
+a shorter observation history than later states.
 
 The distribution is restricted to the model's admissible domain: covariance
 stationarity and positive innovation variances consistent with the four fixed

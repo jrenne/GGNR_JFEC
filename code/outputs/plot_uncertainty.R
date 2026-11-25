@@ -13,14 +13,14 @@ states$date <- as.Date(states$date)
 premia$date <- as.Date(premia$date)
 
 draw_band <- function(data, prefix, title, zero = FALSE) {
-  y95 <- c(data[[paste0(prefix, "_p025")]],
-           data[[paste0(prefix, "_p975")]])
-  limits <- range(y95[is.finite(y95)])
+  outer_band <- c(data[[paste0(prefix, "_p05")]],
+           data[[paste0(prefix, "_p95")]])
+  limits <- range(outer_band[is.finite(outer_band)])
   ggnr_plot(data$date, data[[paste0(prefix, "_estimate")]], type = "n",
        xlab = "", ylab = "percentage points", main = title, ylim = limits)
   polygon(c(data$date, rev(data$date)),
-          c(data[[paste0(prefix, "_p025")]],
-            rev(data[[paste0(prefix, "_p975")]])),
+          c(data[[paste0(prefix, "_p05")]],
+            rev(data[[paste0(prefix, "_p95")]])),
           col = "grey85", border = NA)
   polygon(c(data$date, rev(data$date)),
           c(data[[paste0(prefix, "_p16")]],
@@ -37,7 +37,7 @@ draw_state_figure <- function() {
       mgp = c(2.8, 0.8, 0), tcl = -0.3)
   draw_band(states, "r_star", expression(paste("(a) Real-rate trend ", r*"*")),
             zero = TRUE)
-  ggnr_legend("topright", legend = c("Estimate", "68% interval", "95% interval"),
+  ggnr_legend("topright", legend = c("Estimate", "68% interval", "90% interval"),
          lty = c(1, NA, NA), lwd = c(2.5, NA, NA),
          pch = c(NA, 15, 15), pt.cex = c(NA, 2.0, 2.0),
          col = c("black", "grey65", "grey85"), bty = "o", box.col = "white",
@@ -52,7 +52,7 @@ draw_premium_figure <- function() {
       mgp = c(2.8, 0.8, 0), tcl = -0.3)
   par(cex = 1) # Restore full-size text after the multi-panel layout.
   draw_band(premia, "nominal_10y", "(a) 10-year nominal term premium", TRUE)
-  ggnr_legend("topright", legend = c("Estimate", "68% interval", "95% interval"),
+  ggnr_legend("topright", legend = c("Estimate", "68% interval", "90% interval"),
          lty = c(1, NA, NA), lwd = c(2.5, NA, NA),
          pch = c(NA, 15, 15), pt.cex = c(NA, 2.0, 2.0),
          col = c("black", "grey65", "grey85"), bty = "o", box.col = "white",

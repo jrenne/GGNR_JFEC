@@ -47,8 +47,8 @@ for (batch in 1:5) {
   all_paths[[batch]] <- paths
   q <- ggnr_uncertainty_quantiles(paths,point,problem$data$dates,seq_len(ncol(point)))
   batches[[batch]] <- data.frame(series=colnames(point),
-    mean_width95=vapply(colnames(point),function(n)
-      mean(q[[paste0(n,"_p975")]]-q[[paste0(n,"_p025")]]),numeric(1)))
+    mean_width90=vapply(colnames(point),function(n)
+      mean(q[[paste0(n,"_p95")]]-q[[paste0(n,"_p05")]]),numeric(1)))
   reasons <- table(vapply(results[!good],`[[`,character(1),"reason"))
   batch_records[[batch]] <- list(seed=seed,accepted=target,proposals=ending,rejection_reasons=reasons)
   if (batch<=3) {
@@ -61,14 +61,14 @@ state_bands <- ggnr_uncertainty_quantiles(paths,point,problem$data$dates,1:7)
 premium_bands <- ggnr_uncertainty_quantiles(paths,point,problem$data$dates,8:13)
 summary <- data.frame(series=colnames(point),
   mean_sd=apply(apply(paths,c(1,2),sd),2,mean),
-  mean_width95=vapply(colnames(point),function(n) {
+  mean_width90=vapply(colnames(point),function(n) {
     z<-if(paste0(n,"_estimate")%in%names(state_bands))state_bands else premium_bands
-    mean(z[[paste0(n,"_p975")]]-z[[paste0(n,"_p025")]])},numeric(1)),
+    mean(z[[paste0(n,"_p95")]]-z[[paste0(n,"_p05")]])},numeric(1)),
   relative_width_MC_SE=vapply(seq_len(ncol(point)),function(j) {
-    x<-vapply(batches,function(b)b$mean_width95[j],numeric(1));sd(x)/sqrt(5)/mean(x)},numeric(1)))
+    x<-vapply(batches,function(b)b$mean_width90[j],numeric(1));sd(x)/sqrt(5)/mean(x)},numeric(1)))
 proposals <- sum(vapply(batch_records,`[[`,integer(1),"proposals"))
 diagnostics <- data.frame(method="nonlinear_covariance_propagation",parameter_count=length(theta),
- sample_months=nrow(point),accepted_draws=number,proposals=proposals,
+ sample_months=nrow(point),interval_levels="68%,90%",accepted_draws=number,proposals=proposals,
  admissibility_rate=number/proposals,cores=cores,
  elapsed_seconds=unname(proc.time()[["elapsed"]]-started),
  reconstructed_loglik=base$fval,conditional_on_exact_moment_targets=TRUE,

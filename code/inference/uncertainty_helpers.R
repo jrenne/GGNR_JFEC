@@ -39,10 +39,10 @@ ggnr_uncertainty_draw <- function(input, problem, theta, root) {
 ggnr_uncertainty_quantiles <- function(paths, point, dates, columns) {
   bands <- data.frame(date=dates)
   for (j in columns) {
-    q <- t(apply(paths[,j,],1,quantile,probs=c(.025,.16,.5,.84,.975),type=7))
+    q <- t(apply(paths[,j,],1,quantile,probs=c(.05,.16,.5,.84,.95),type=7))
     name <- colnames(point)[j]
     bands[[paste0(name,"_estimate")]] <- point[,j]
-    for (k in 1:5) bands[[paste0(name,"_",c("p025","p16","median","p84","p975")[k])]] <- q[,k]
+    for (k in 1:5) bands[[paste0(name,"_",c("p05","p16","median","p84","p95")[k])]] <- q[,k]
   }
   bands
 }

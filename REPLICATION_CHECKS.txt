@@ -10,15 +10,16 @@ White and 12-lag Bartlett/HAC score covariances, full economic-coordinate
 Jacobian. Normalization, score covariance, derivative-step sensitivity and
 local stationarity checks pass. No parameter-covariance directions are removed.
 
-Uncertainty bands: 5,000 admissible joint parameter draws in five independent
+Uncertainty bands: central 68% and 90% intervals, using 5,000 admissible joint parameter draws in five independent
 batches, nonlinear refiltering, conditional state draws and repricing. The
 simulation uses 5,316 proposals; 316 violate the explicit moment or stationarity
 restrictions. It therefore conditions the Gaussian parameter approximation on
 the admissible domain. Other numerical errors stop the calculation. All moment
 targets and calibrations remain fixed. The archived reference draws can be
-replayed independently. Production code reproduces the independently checked
+replayed independently. Initial-tail draws were also checked against the
+independent R filter, with numerical agreement. Production code reproduces the independently checked
 bands. Batch-based Monte Carlo standard errors for mean ten-year premium-band
-widths are about 1.6–2.7%. Full generation took about 99 seconds on four processes.
+widths are about 1.7–2.4%. Full generation took about 99 seconds on four processes.
 These are pointwise covariance-based bands, not a bootstrap or an established
 finite-sample coverage guarantee.
 

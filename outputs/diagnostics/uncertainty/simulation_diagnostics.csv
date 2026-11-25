@@ -1,2 +1,2 @@
-"method","parameter_count","sample_months","accepted_draws","proposals","admissibility_rate","cores","elapsed_seconds","reconstructed_loglik","conditional_on_exact_moment_targets","conditional_on_admissibility","finite_sample_coverage_established"
-"nonlinear_covariance_propagation",30,415,5000,5316,0.940556809631302,4,98.697,39575.6708631478,TRUE,TRUE,FALSE
+"method","parameter_count","sample_months","accepted_draws","proposals","admissibility_rate","cores","elapsed_seconds","reconstructed_loglik","conditional_on_exact_moment_targets","conditional_on_admissibility","finite_sample_coverage_established","interval_levels"
+"nonlinear_covariance_propagation",30,415,5000,5316,0.940556809631302,4,98.697,39575.6708631478,TRUE,TRUE,FALSE,"68%,90%"

@@ -120,7 +120,8 @@ batches, 5,000 admissible joint parameter draws in total, and seed 20261126
 for the first batch. The draw count must be a multiple of five and at least
 100. `GGNR_UNCERTAINTY_SEED` selects a different first-batch seed.
 
-All free parameters and their cross-covariances are retained. Each accepted
+The empirical figures display central 68% and 90% bands (16th–84th and
+5th–95th percentiles). All free parameters and their cross-covariances are retained. Each accepted
 draw reruns the original nonlinear filter, draws conditional states and
 reprices bonds. Only draws violating model admissibility are rejected;
 other numerical failures stop the calculation. The output reports proposals,
