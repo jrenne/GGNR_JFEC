@@ -32,33 +32,33 @@ draw_band <- function(data, prefix, title, zero = FALSE) {
 }
 
 draw_state_figure <- function() {
-  par(mfrow = c(2, 1), mar = c(3.4, 5.1, 3.0, 1.0),
+  par(mfrow = c(2, 1), mar = c(3.4, 5.1, 1.8, 1.0), oma = c(0,0,1.8,0),
       cex.axis = 1.12, cex.lab = 1.18, cex.main = 1.28,
       mgp = c(2.8, 0.8, 0), tcl = -0.3)
   draw_band(states, "r_star", expression(paste("(a) Real-rate trend ", r*"*")),
             zero = TRUE)
-  ggnr_legend("topright", legend = c("Estimate", "68% interval", "90% interval"),
-         lty = c(1, NA, NA), lwd = c(2.5, NA, NA),
-         pch = c(NA, 15, 15), pt.cex = c(NA, 2.0, 2.0),
-         col = c("black", "grey65", "grey85"), bty = "o", box.col = "white",
-         bg = "white", ncol = 3, cex = 1.05)
+
   draw_band(states, "pi_star",
             expression(paste("(b) Inflation trend ", pi*"*")), zero = TRUE)
+  ggnr_figure_legend(legend = c("Estimate", "68% interval", "90% interval"),
+    lty = c(1,NA,NA), lwd = c(2.5,NA,NA), pch = c(NA,15,15),
+    pt.cex = c(NA,1.8,1.8), col = c("black","grey65","grey85"),
+    ncol = 3, cex = 1.05)
 }
 
 draw_premium_figure <- function() {
-  par(mfrow = c(3, 1), mar = c(3.4, 5.1, 3.0, 1.0),
+  par(mfrow = c(3, 1), mar = c(3.4, 5.1, 1.8, 1.0), oma = c(0,0,1.8,0),
       cex.axis = 1.12, cex.lab = 1.18, cex.main = 1.28,
       mgp = c(2.8, 0.8, 0), tcl = -0.3)
   par(cex = 1) # Restore full-size text after the multi-panel layout.
   draw_band(premia, "nominal_10y", "(a) 10-year nominal term premium", TRUE)
-  ggnr_legend("topright", legend = c("Estimate", "68% interval", "90% interval"),
-         lty = c(1, NA, NA), lwd = c(2.5, NA, NA),
-         pch = c(NA, 15, 15), pt.cex = c(NA, 2.0, 2.0),
-         col = c("black", "grey65", "grey85"), bty = "o", box.col = "white",
-         bg = "white", ncol = 3, cex = 1.05)
+
   draw_band(premia, "real_10y", "(b) 10-year real term premium", TRUE)
   draw_band(premia, "inflation_10y", "(c) 10-year inflation risk premium", TRUE)
+  ggnr_figure_legend(legend = c("Estimate", "68% interval", "90% interval"),
+    lty = c(1,NA,NA), lwd = c(2.5,NA,NA), pch = c(NA,15,15),
+    pt.cex = c(NA,1.8,1.8), col = c("black","grey65","grey85"),
+    ncol = 3, cex = 1.05)
 }
 
 png(file.path(output_directory, "state_uncertainty_bands.png"),

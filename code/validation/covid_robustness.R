@@ -116,7 +116,7 @@ write.csv(parameter_comparison,
           file.path(output_directory, "parameter_comparison.csv"),
           row.names = FALSE)
 
-draw_panel <- function(mask, panel_title, legend_position = NULL) {
+draw_panel <- function(mask, panel_title) {
   limits <- range(c(state_baseline[mask, "r_star"],
                     state_omit[mask, "r_star"]), finite = TRUE)
   ggnr_plot(dates[mask], state_baseline[mask, "r_star"], type = "l",
@@ -126,18 +126,16 @@ draw_panel <- function(mask, panel_title, legend_position = NULL) {
         lwd = 2.4, lty = 2)
   abline(h = 0, col = "grey70", lwd = 1.0)
   grid(col = "grey90", lty = 1)
-  if (!is.null(legend_position)) ggnr_legend(
-    legend_position, c("Baseline IEKF", "2020 omitted; parameters fixed"),
-    col = c("black", "grey50"), lty = c(1, 2), lwd = c(2.6, 2.4),
-    cex = 1.05, bg = adjustcolor("white", alpha.f = 0.90)
-  )
 }
 draw_figure <- function() {
-  par(mfrow = c(2, 1), mar = c(3.6, 5.0, 2.9, 1),
+  par(mfrow = c(2, 1), oma = c(0,0,1.8,0), mar = c(3.6, 5.0, 2.9, 1),
       cex.axis = 1.15, cex.lab = 1.20, cex.main = 1.25,
       font.main = 2, mgp = c(2.8, 0.85, 0), tcl = -0.35)
-  draw_panel(rep(TRUE, length(dates)), "(a) Full sample", "bottomleft")
+  draw_panel(rep(TRUE, length(dates)), "(a) Full sample")
   draw_panel(dates >= as.Date("2015-01-01"), "(b) 2015 to 2026")
+  ggnr_figure_legend(legend = c("Baseline IEKF", "2020 omitted; parameters fixed"),
+    col = c("black","grey50"), lty = c(1,2), lwd = c(2.6,2.4), ncol = 2, cex = 1.05)
+
 }
 png(file.path(output_directory, "rstar_omit2020.png"),
     width = 1800, height = 1250, res = 180)

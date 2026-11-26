@@ -66,7 +66,7 @@ png(output_file, width = 1800, height = 1600, res = 180)
 par(mfrow = c(2, 1), mar = c(3.2, 4.2, 2.5, 1))
 limits <- range(c(observed_irp[observed], fitted_observable_irp[observed],
                   structural_irp[observed]), finite = TRUE)
-ggnr_plot(data$dates[observed], observed_irp[observed], type = "p", pch = 4,
+ggnr_plot(legend_rows = 1, data$dates[observed], observed_irp[observed], type = "p", pch = 4,
      col = "#222222", xlab = "", ylab = "percentage points", ylim = limits,
      main = "10-year inflation risk premium: observed and fitted")
 lines(data$dates[observed], fitted_observable_irp[observed],
@@ -79,7 +79,7 @@ ggnr_legend("topright", legend = c("Survey-implied", "From fitted observables", 
        pch = c(4, NA, NA), lty = c(NA, 1, 2), lwd = c(NA, 1.5, 1.2),
        cex = 0.8, bg = adjustcolor("white", alpha.f = 0.85))
 
-ggnr_plot(data$dates[observed], identity_error[observed], type = "l",
+ggnr_plot(legend_rows = 1, data$dates[observed], identity_error[observed], type = "l",
      col = "#222222", lwd = 1.5, xlab = "", ylab = "percentage points",
      main = "Exact IRP fit-error decomposition")
 lines(data$dates[observed], nominal_error[observed], col = "#009E73", lwd = 1)

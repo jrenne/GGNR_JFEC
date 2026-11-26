@@ -203,9 +203,7 @@ writeLines(table_lines,
 
 draw_sensitivity_panel <- function(baseline_series, sensitivity_series,
                                    panel_title, comparison_series = NULL,
-                                   comparison_type = c("line", "points", "none"),
-                                   comparison_label = NULL,
-                                   show_model_legend = FALSE) {
+                                   comparison_type = c("line", "points", "none")) {
   comparison_type <- match.arg(comparison_type)
   limits <- range(c(baseline_series, sensitivity_series, comparison_series),
                   finite = TRUE)
@@ -224,35 +222,11 @@ draw_sensitivity_panel <- function(baseline_series, sensitivity_series,
   lines(dates, baseline_series, col = "black", lwd = 2.7)
   lines(dates, sensitivity_series, col = "grey35", lwd = 2.5, lty = 2)
   abline(v = as.Date("2004-01-01"), col = "grey25", lwd = 1.2, lty = 3)
-  if (show_model_legend) {
-    legend_labels <- c("Baseline", "Sensitivity estimate")
-    legend_colors <- c("black", "grey35")
-    legend_lty <- c(1, 2)
-    legend_pch <- c(NA, NA)
-    legend_lwd <- c(2.7, 2.5)
-    if (!is.null(comparison_series)) {
-      legend_labels <- c(legend_labels, comparison_label)
-      legend_colors <- c(legend_colors, "grey70")
-      legend_lty <- c(legend_lty, if (comparison_type == "line") 1 else NA)
-      legend_pch <- c(legend_pch, if (comparison_type == "points") 4 else NA)
-      legend_lwd <- c(legend_lwd, if (comparison_type == "line") 1.9 else 2.2)
-    }
-    ggnr_legend("topright", legend = legend_labels, col = legend_colors,
-           lty = legend_lty, pch = legend_pch, lwd = legend_lwd,
-           pt.cex = 1.15, cex = 1.03,
-           bg = adjustcolor("white", alpha.f = 0.92))
-  } else if (!is.null(comparison_series)) {
-    ggnr_legend("topright", legend = comparison_label, col = "grey65",
-           lty = if (comparison_type == "line") 1 else NA,
-           pch = if (comparison_type == "points") 4 else NA,
-           lwd = if (comparison_type == "line") 1.9 else 2.2,
-           pt.cex = 1.15, cex = 1.03,
-           bg = adjustcolor("white", alpha.f = 0.92))
-  }
+
 }
 
 draw_sensitivity_figure <- function() {
-  par(mfrow = c(3, 1), mar = c(3.7, 5.3, 2.9, 1.0),
+  par(mfrow = c(3, 1), oma = c(0,0,2.8,0), mar = c(3.7, 5.3, 2.9, 1.0),
       cex.axis = 1.15, cex.lab = 1.18, cex.main = 1.25,
       font.main = 2, mgp = c(3.0, 0.85, 0), tcl = -0.35)
   par(cex = 1) # Restore full-size text after the multi-panel layout.
@@ -260,17 +234,23 @@ draw_sensitivity_figure <- function() {
     baseline_objects[, "real_yield_10y"],
     robust_objects[, "real_yield_10y"],
     "(a) Ten-year real yield", extended_real_yield_10y,
-    "line", "Extended real-yield data", TRUE
+    "line"
   )
   draw_sensitivity_panel(
     baseline_objects[, "real_tp"], robust_objects[, "real_tp"],
     "(b) Ten-year real term premium", model_free_real_tp_10y,
-    "points", "Survey model-free 10y"
+    "points"
   )
   draw_sensitivity_panel(
     baseline_objects[, "r_star"], robust_objects[, "r_star"],
     "(c) Real-rate trend"
   )
+  ggnr_figure_legend(legend = c("Baseline", "Sensitivity estimate",
+    "Extended real-yield data", "Survey model-free 10y"),
+    col = c("black","grey35","grey70","grey65"),
+    lty = c(1,2,1,NA), pch = c(NA,NA,NA,4),
+    lwd = c(2.7,2.5,1.9,2.2), ncol = 2, cex = 1.03)
+
 }
 
 ggnr_pdf(file.path(figure_directory, "pre2004_real_yield_sensitivity.pdf"),

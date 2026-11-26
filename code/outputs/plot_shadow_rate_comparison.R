@@ -22,7 +22,7 @@ series <- Reduce(
   )
 )
 
-draw_panel <- function(from, to, panel_title, show_legend = FALSE) {
+draw_panel <- function(from, to, panel_title) {
   keep <- series$date >= as.Date(from) & series$date <= as.Date(to)
   z <- series[keep, ]
   limits <- range(
@@ -41,25 +41,20 @@ draw_panel <- function(from, to, panel_title, show_legend = FALSE) {
   )
   abline(h = 0, col = "grey78", lwd = 0.8)
   grid(col = "grey90", lty = 1)
-  if (show_legend) {
-    ggnr_legend(
-      "bottomleft",
-      legend = c("Model", "Wu--Xia", "Krippner", "Effective federal funds rate"),
-      col = c("black", "grey35", "grey60", "grey75"),
-      lty = c(1, 2, 3, 4), lwd = c(2.8, 2.2, 2.2, 1.8),
-      cex = 1.02, bg = adjustcolor("white", alpha.f = 0.90)
-    )
-  }
+
 }
 
 ggnr_pdf(output_file, width = 10, height = 7.5, useDingbats = FALSE)
 par(
-  mfrow = c(2, 1), mar = c(3.5, 4.8, 2.8, 0.8),
+  mfrow = c(2, 1), oma = c(0,0,1.8,0), mar = c(3.5, 4.8, 2.8, 0.8),
   cex.axis = 1.15, cex.lab = 1.20, cex.main = 1.18,
   font.main = 2, mgp = c(2.6, 0.8, 0), tcl = -0.35
 )
-draw_panel("1995-01-01", "2023-06-01", "(a) Common sample", TRUE)
+draw_panel("1995-01-01", "2023-06-01", "(a) Common sample")
 draw_panel("2008-01-01", "2022-03-01", "(b) Effective-lower-bound periods")
+ggnr_figure_legend(legend = c("Model", "Wu--Xia", "Krippner", "Effective federal funds rate"),
+  col = c("black","grey35","grey60","grey75"), lty = c(1,2,3,4),
+  lwd = c(2.8,2.2,2.2,1.8), ncol = 4, cex = 1.02)
 ggnr_dev_off()
 
 # Compact diagnostics used to keep the accompanying discussion quantitative.

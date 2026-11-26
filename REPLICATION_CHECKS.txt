@@ -1,4 +1,4 @@
-JFEC R2 REPLICATION CHECKS — 25 NOVEMBER 2026
+JFEC R2 REPLICATION CHECKS — 26 NOVEMBER 2026
 
 Specification: February 1992–August 2026, 415 months, 30 free coordinates;
 PTR measurement-error SD fixed at 20 annualized basis points. Four empirical
@@ -34,7 +34,8 @@ yield derivatives, pricing timing and survey integration. The liquid-TIPS
 sensitivity uses a separate estimate. The omit-2020 figure omits measurement
 updates at fixed baseline parameters and moment targets.
 
-Graphics: legends occupy reserved margins outside the plotting rectangles.
+Graphics: compact panel margins increase the plotting height. Shared legends
+use the outer figure margin; other legends use a dedicated panel margin.
 PDF fonts are embedded. All 17 published figures are visually inspected;
 all eight table files are regenerated. The default build reuses the supplied
 estimates and simulation archives and completes in about 13 seconds when warm.

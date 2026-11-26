@@ -143,7 +143,7 @@ draw_yield_irf <- function(results, experiment) {
   limits <- range(c(0, all_values), finite = TRUE)
   padding <- 0.08 * diff(limits)
   limits <- limits + c(-padding, padding)
-  par(mfrow = c(1, 2), mar = c(4.6, 5.0, 7.4, 1),
+  par(mfrow = c(1, 2), mar = c(4.0, 5.0, 1.8, 1), oma = c(0,0,2.8,0),
       cex.axis = 1.18, cex.lab = 1.22, cex.main = 1.18,
       font.main = 2, mgp = c(2.8, 0.85, 0), tcl = -0.35)
   for (market in c("nominal", "real")) {
@@ -167,12 +167,11 @@ draw_yield_irf <- function(results, experiment) {
         legend_types <- c(legend_types, line_types[scenario])
       }
     }
-    if (market == "real") {
-      ggnr_legend("topright", legend = legend_labels, col = colors[legend_colors],
-             lty = legend_types, lwd = 2.6, cex = 1.00,
-             bg = adjustcolor("white", alpha.f = 0.9))
-    }
+
   }
+  ggnr_figure_legend(legend = legend_labels, col = colors[legend_colors],
+    lty = legend_types, lwd = 2.6, cex = .98, ncol = 2)
+
 }
 
 all_yield_results <- list()

@@ -73,17 +73,39 @@ ggnr_dev_off <- function() {
   invisible(value)
 }
 
-# Reserve a separate top margin for legends, outside the plotting rectangle.
+# Compact panels reserve space only for legends actually drawn in that panel.
 ggnr_panel <- function(fun, args) {
   main <- args$main; args$main <- NULL
-  mar <- par("mar"); mar[3] <- max(mar[3], if (is.null(main)) 3.4 else 6.4)
+  rows <- args$legend_rows; args$legend_rows <- NULL
+  if (is.null(rows)) rows <- 0L
+  mar <- par("mar")
+  mar[3] <- if (is.null(main)) .6 + 1.2 * rows else 1.8 + 1.2 * rows
   par(mar = mar)
   value <- do.call(fun, args)
-  if (!is.null(main)) graphics::title(main = main, line = mar[3] - 1.6)
+  if (!is.null(main)) graphics::title(main = main, line = mar[3] - .9)
   invisible(value)
 }
 ggnr_plot <- function(...) ggnr_panel(graphics::plot, list(...))
 ggnr_matplot <- function(...) ggnr_panel(graphics::matplot, list(...))
+
+# Shared legends use the figure's reserved outer margin, not any plot rectangle.
+ggnr_figure_legend <- function(...) {
+  old <- par(no.readonly = TRUE)
+  on.exit(par(old))
+  par(fig = c(0,1,0,1), oma = c(0,0,0,0), mar = c(0,0,0,0),
+      new = TRUE, cex = 1, xpd = NA)
+  graphics::plot.new()
+  graphics::plot.window(c(0,1), c(0,1), xaxs = "i", yaxs = "i")
+  args <- list(...)
+  if (is.null(args$cex)) args$cex <- 1
+  for (i in 1:3) {
+    box <- do.call(graphics::legend, c(list(x = "top", plot = FALSE), args))
+    if (box$rect$w <= .98) break
+    args$cex <- args$cex * .98 / box$rect$w
+  }
+  do.call(graphics::legend, c(list(x = "top", inset = c(0,.008), bty = "n", xpd = NA), args))
+}
+
 ggnr_legend <- function(x, ..., y = NULL) {
   args <- list(...); args$x <- args$y <- args$inset <- args$plot <- NULL
   args$xpd <- NA; args$bty <- "n"; args$bg <- NULL; args$box.col <- NULL
@@ -103,7 +125,7 @@ ggnr_legend <- function(x, ..., y = NULL) {
     args$cex <- args$cex * .98 * width / box$rect$w
     box <- do.call(graphics::legend, c(list(x = "top", plot = FALSE), args))
   }
-  gap <- diff(usr[3:4]) * .10 / par("pin")[2]
+  gap <- diff(usr[3:4]) * .025 / par("pin")[2]
   do.call(graphics::legend, c(list(x = mean(usr[1:2]),
     y = usr[4] + box$rect$h + gap, xjust = .5, yjust = 1), args))
 }

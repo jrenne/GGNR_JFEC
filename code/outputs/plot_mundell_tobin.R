@@ -158,7 +158,7 @@ draw_figure <- function() {
   ggnr_matplot(
     dates, conditional_correlations, type = "l",
     lwd = c(2.8, 2.6, 2.6), lty = c(1, 2, 3), col = colors,
-    xlab = "", ylab = "Conditional correlation",
+    xlab = "", ylab = "Conditional correlation", legend_rows = 1,
     ylim = correlation_range + c(-correlation_padding, correlation_padding)
   )
   abline(h = 0, col = "grey60", lwd = 1.2)

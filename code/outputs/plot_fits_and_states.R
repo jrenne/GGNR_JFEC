@@ -43,11 +43,11 @@ colors <- c(model = "black", observed = "grey45", comparison = "grey30",
 publication_par <- function(...) {
   par(
     cex.axis = 1.15, cex.lab = 1.20, cex.main = 1.15,
-    font.main = 2, mgp = c(2.6, 0.8, 0), tcl = -0.35, ...
+    oma = c(0,0,1.8,0), font.main = 2, mgp = c(2.6, 0.8, 0), tcl = -0.35, ...
   )
   par(cex = 1) # Set after mfrow, which otherwise shrinks panel text.
 }
-draw_fit <- function(observed, fitted, panel_title, legend_position = NULL) {
+draw_fit <- function(observed, fitted, panel_title) {
   observed <- 1200 * observed
   fitted <- 1200 * fitted
   limits <- range(c(observed, fitted), finite = TRUE)
@@ -56,12 +56,7 @@ draw_fit <- function(observed, fitted, panel_title, legend_position = NULL) {
        main = panel_title, ylim = limits)
   points(dates, observed, col = colors["observed"], pch = 16, cex = 0.68)
   grid(col = "grey88", lty = 1)
-  if (!is.null(legend_position)) {
-    ggnr_legend(legend_position, legend = c("Model", "Observed"),
-           col = colors[c("model", "observed")], lty = c(1, NA),
-           pch = c(NA, 16), pt.cex = 1.25, lwd = c(2.4, NA), cex = 1.05,
-           bg = adjustcolor("white", alpha.f = 0.9))
-  }
+
 }
 
 rolling_12m <- function(value) as.numeric(stats::filter(
@@ -72,7 +67,7 @@ ggnr_pdf(file.path(output_directory, "fig_macro_fit.pdf"),
     width = 10, height = 10.2, useDingbats = FALSE)
 publication_par(mfrow = c(3, 2), mar = c(3.4, 4.8, 2.8, 0.8))
 draw_fit(rolling_12m(data$macro[, 2]), rolling_12m(fit$macro[, 1]),
-         "(a) Twelve-month CPI inflation", "topright")
+         "(a) Twelve-month CPI inflation")
 draw_fit(data$macro[, 4], fit$macro[, 2], "(b) Perceived inflation target")
 draw_fit(data$surv_infexp[, 1], fit$inflation_survey[, 1],
          "(c) One-year CPI forecast")
@@ -82,6 +77,8 @@ draw_fit(data$surv_tbexp[, 1], fit$tbill_survey[, 1],
          "(e) One-year T-bill forecast")
 draw_fit(data$surv_tbexp[, 2], fit$tbill_survey[, 2],
          "(f) Ten-year T-bill forecast")
+ggnr_figure_legend(legend = c("Model", "Observed"), col = c("black", "grey45"),
+  lty = c(1,NA), pch = c(NA,16), lwd = c(2.4,NA), ncol = 2, cex = 1.05)
 ggnr_dev_off()
 
 ggnr_pdf(file.path(output_directory, "fig_nominal_yield_fit.pdf"),
@@ -90,9 +87,10 @@ publication_par(mfrow = c(3, 1), mar = c(3.4, 4.8, 2.8, 0.8))
 for (entry in list(c(1, 3), c(3, 24), c(7, 120))) {
   j <- entry[1]
   draw_fit(data$yields_n[, j], fit$nominal_yields[, j],
-           paste0(entry[2], "-month nominal yield"),
-           if (j == 1) "topright" else NULL)
+           paste0(entry[2], "-month nominal yield"))
 }
+ggnr_figure_legend(legend = c("Model", "Observed"), col = c("black", "grey45"),
+  lty = c(1,NA), pch = c(NA,16), lwd = c(2.4,NA), ncol = 2, cex = 1.05)
 ggnr_dev_off()
 
 ggnr_pdf(file.path(output_directory, "fig_real_yield_fit.pdf"),
@@ -101,9 +99,10 @@ publication_par(mfrow = c(3, 1), mar = c(3.4, 4.8, 2.8, 0.8))
 for (entry in list(c(1, 24), c(2, 60), c(4, 120))) {
   j <- entry[1]
   draw_fit(data$yields_r[, j], fit$real_yields[, j],
-           paste0(entry[2], "-month real yield"),
-           if (j == 1) "topright" else NULL)
+           paste0(entry[2], "-month real yield"))
 }
+ggnr_figure_legend(legend = c("Model", "Observed"), col = c("black", "grey45"),
+  lty = c(1,NA), pch = c(NA,16), lwd = c(2.4,NA), ncol = 2, cex = 1.05)
 ggnr_dev_off()
 
 # One-sided LW and HLW estimates; frozen vintages are documented in data/README.md.
@@ -125,7 +124,7 @@ stopifnot(isTRUE(all.equal(state_bands$r_star_estimate, as.numeric(r_star))),
 
 ggnr_pdf(file.path(output_directory, "fig_states.pdf"),
          width = 9, height = 9, pointsize = 11, useDingbats = FALSE)
-par(mfrow = c(3, 1), mar = c(3.0, 4.6, 2.2, 0.8), mgp = c(2.7, 0.7, 0),
+par(mfrow = c(3, 1), oma = c(0,0,1.8,0), mar = c(3.0, 4.6, 1.8, 0.8), mgp = c(2.7, 0.7, 0),
     cex.axis = 1.08, cex.lab = 1.1, cex.main = 1.1)
 par(cex = 1)
 for (i in 1:3) {
@@ -151,17 +150,17 @@ for (i in 1:3) {
     lines(dates[j], benchmark_lw[j], col = "grey45", lty = 3, lwd = 1.7)
     j <- is.finite(benchmark_hlw)
     lines(dates[j], benchmark_hlw[j], col = "grey25", lty = 2, lwd = 1.7)
-    ggnr_legend("bottomleft", legend = c("Model", "HLW", "LW", "68%", "90%"),
-           col = c("black", "grey25", "grey45", "grey65", "grey87"),
-           lty = c(1, 2, 3, NA, NA), pch = c(NA, NA, NA, 15, 15),
-           lwd = 1.7, cex = 0.94, bg = "white", ncol = 5)
+
   }
   if (i == 2) {
     points(dates, 1200 * data$macro[, 4], col = "grey35", pch = 16, cex = 0.45)
-    ggnr_legend("topright", legend = c("Model", "PTR"), col = c("black", "grey35"),
-           lty = c(1, NA), pch = c(NA, 16), cex = 0.94, bg = "white")
+
   }
 }
+ggnr_figure_legend(legend = c("Model","HLW","LW","PTR","68%","90%"),
+  col = c("black","grey25","grey45","grey35","grey65","grey87"),
+  lty = c(1,2,3,NA,NA,NA), pch = c(NA,NA,NA,16,15,15),
+  lwd = c(1.7,1.7,1.7,NA,NA,NA), ncol = 6, cex = .94)
 ggnr_dev_off()
 
 
@@ -176,9 +175,9 @@ ggnr_plot(dates, shadow, type = "l", lwd = 2.4, col = colors["model"],
 lines(dates, effective, col = colors["observed"], lwd = 2.0, lty = 2)
 abline(h = 0, col = "grey65", lwd = 0.8)
 grid(col = "grey90", lty = 1)
-ggnr_legend("topright", legend = c("Model shadow rate", "Effective federal funds rate"),
-       col = colors[c("model", "observed")], lty = c(1, 2), lwd = c(2.4, 2.0),
-       cex = 1.08, bg = adjustcolor("white", alpha.f = 0.9))
+
+ggnr_figure_legend(legend = c("Model shadow rate", "Effective federal funds rate"),
+  col = colors[c("model","observed")], lty = c(1,2), lwd = c(2.4,2), ncol = 2, cex = 1.08)
 ggnr_dev_off()
 
 write.csv(data.frame(date = dates, r_star = r_star, pi_star = pi_star,
